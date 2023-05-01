@@ -40,8 +40,8 @@
 	jQuery(document).on("click",".gallery-item",function(e){
 	
 	  // highlight this gallery item
-	  jQuery(".gallery-item").removeClass('active-gallery-item');
-	  jQuery(this).addClass('active-gallery-item');
+	  jQuery(".gallery-item").removeClass('active-item');
+	  jQuery(this).addClass('active-item');
 	  
 	  jQuery("#crop").removeClass("activated");
 	  selectionMode = false;
@@ -144,7 +144,10 @@
 		    var img_html = "<img src='"+crop_url+"' data-manifest='"+manifest_url+"'/>";
 
 		    jQuery("#preview").find('.preview-tray').prepend("<div class='preview-item' data-num='"+selections.length+"'>\
-		    <a href='"+crop_url+"' target='_blank'>"+img_html+"</a><a href='#' class='preview-item-close'>&times;</a></div>");
+		    <a href='#' class='selectcrop'>"+img_html+"</a>\
+		    <span class='preview-item-tools'>\
+		    <a href='"+crop_url+"' target='_blank'><img src='images/external-white.svg' height='12'/></a>\
+		    <a href='#' class='preview-item-close'>&times;</a></span></div>");
 		    jQuery("#preview").addClass('shown').show();	    
 
 		    selections.push({"image":crop_url,"html":img_html}); 
@@ -161,6 +164,8 @@
 
 	    }
 	});
+
+
 
 
 
@@ -226,6 +231,11 @@
 	
 	
 	
+	
+	
+	
+
+	
 		 
 	 
 	// show / hide preview bar
@@ -238,13 +248,30 @@
 	});
 	
 	
-	jQuery(document).on("mouseover",".preview-item",function(e){
+	/******************
+	* 
+	*************************************************/
+	
+	jQuery(document).on("click",".preview-item",function(e){
+	  // highlight this gallery item
+	  jQuery(".preview-item").removeClass('active-item');
+	  jQuery(this).addClass("active-item");
 	  var num = jQuery(this).attr('data-num');
 	  var mode = jQuery("#output").attr('data-mode');
-	  console.log(selections[num],mode);
 	  jQuery("#output").val(selections[num][mode]);
 	  jQuery("#output").attr('data-current',num);
 	});
+	
+	/*
+	jQuery(document).on("mouseover",".preview-item",function(e){
+	  var num = jQuery(this).attr('data-num');
+	  var mode = jQuery("#output").attr('data-mode');
+	  jQuery("#output").val(selections[num][mode]);
+	  jQuery("#output").attr('data-current',num);
+	});
+	*/
+	
+	
 	
 	
 	jQuery("#html").click(function(e){
@@ -263,7 +290,7 @@
 	// remove item from preview bar
 	
 	jQuery(document).on("click", ".preview-item-close", function(e) {
-	  jQuery(this).parent().remove();
+	  jQuery(this).parent().parent().remove();
 	  e.preventDefault();
 	});	 
     
