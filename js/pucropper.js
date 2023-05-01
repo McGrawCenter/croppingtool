@@ -179,7 +179,7 @@
   
     if(canvas.thumbnail === undefined) {
       if(typeof canvas.images !== 'undefined') { 
-         var thumbnail = canvas.images[0].resource.service['@id']+"/full/!150,150/0/default.jpg";
+         var thumbnail = canvas.images[0].resource.service['@id']+"/full/150,/0/default.jpg";
       }
       else {
          return false;
