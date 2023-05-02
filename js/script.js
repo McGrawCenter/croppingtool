@@ -8,7 +8,7 @@
   	var current_image = "";
   	var manifest_url = "";
   	var selections = []; 
-  	var minThumbWidth = 500;
+  	//var minThumbWidth = 500;
   
   
        var h = jQuery(window).height();
@@ -29,7 +29,8 @@
 	    id: "viewer",
 	    prefixUrl: "js/openseadragon/images/",
 	    tileSources:[],
-	    showFullPageControl:false    
+	    showFullPageControl:false,
+	    minZoomLevel: 0.1    
 	});
 	
 	
@@ -115,7 +116,7 @@
 		);
 	      
 		var overlayHeight = jQuery("#overlay")[0].clientWidth;
-		if(overlayHeight < minThumbWidth) { overlayHeight = minThumbWidth; }
+		//if(overlayHeight < minThumbWidth) { overlayHeight = minThumbWidth; }
 
 		var w = viewer.tileSources[0].width;
       
