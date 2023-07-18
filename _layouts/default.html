@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>IIIF Cropping Tool</title>
+  <meta name="description" content="A tool for cropping images from IIIF manifests, developed at the McGraw Center for Teaching and Learning, Princeotn University">
+  <script src="assets/js/jquery.min.js"></script>
+  <script src="assets/js/script.js?v=0.1.1"></script>
+  <script src="assets/js/pucropper.js?v=0.1.1"></script>
+  <script src="assets/js/dropzone.js?v=0.1"></script>
+  <!--<script src="js/modal.js"></script>-->
+  <script src="assets/js/openseadragon/openseadragon.min.js"></script>
+  <link type="text/css" rel="stylesheet" href="assets/css/style.css">
+  
+
+
+</head>
+
+<body>
+
+
+    <!-- -------------- overlays ---------------- -->
+    <div id='dropzone' class='overlay'>Drop a manifest link here</div>
+
+<!--
+    <div id="modal" class="modal">
+      <div class="modal-wrap">
+        <span class="modal-close">&times;</span>
+        <p class='modal-content'>
+         THIS WILL BE THE METADATA
+        </p>
+      </div>
+    </div>
+-->
+    <div id="preview" class=''>
+      <div class="preview-hide">^</div>
+      <div class="preview-tray"></div>
+    </div>
+
+
+
+<!-- -------------- layout ---------------- -->
+
+
+<div class="two-col">
+    <div class='left-col'>
+    
+       <div style="margin:1em;">
+          <!--
+          <p>https://iiif.library.ucla.edu/ark%3A%2F21198%2Fzz0009gx6g/manifest</p>
+          <p>https://figgy.princeton.edu/concern/scanned_resources/f1aeaeda-08a0-4d7d-9ef4-592b5baf3fa6/manifest</p>
+	  -->
+	  <p class='url-element' style="position:relative;display:flex;">
+
+	    <input type="text" id="url" placeholder="Enter the URL of a IIIF manifest." value="" />
+	    <button id="submit" style="position:absolute;right:0px;top:0px;height:100%;">Submit</button>
+
+	  </p>
+	  
+	  <p class='output-element' style="position:relative;display:flex;margin-bottom:0px;">
+	    <textarea id="output" rows='4' data-current='0' data-mode='image'></textarea>
+	    <button id="copy" style="position:absolute;right:0px;top:0px;font-size:0.8em;display:none;" onClick="javascript:copytext();return false;">Copy</button>
+	  </p>
+	  <p id="mode" style="margin-top:0px;">
+	     <label for="image">
+	       <input id='image' name='mode' type='radio' value='1' checked='checked'/>
+	       <span>image</span>
+	     </label>
+	     <label for="html">
+	       <input id='html' name='mode' type='radio' value='1'/>
+	       <span>html</span>
+	     </label>
+	  </p>	
+	  
+
+
+	  <!--<p><a href="#" class="metadata">View metadata</a></p>-->
+	  <p><div id="gallery"></div></p>
+       </div>
+    
+
+    </div>
+    <div class='right-col'>
+    		<svg xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg" width="50" height="50" fill="white" class="bi bi-pencil-square" viewBox="0 0 50 50" version="1.1" id="crop">
+  <path
+     d="m 49.27243,5.2230983 c 0.647512,0.6399072 0.647512,1.6752836 0,2.3151908 L 45.800623,10.961886 39.143275,4.4032716 42.615082,0.9796751 c 0.649923,-0.64009077 1.703449,-0.64009077 2.353372,0 L 49.27243,5.219819 Z M 43.44725,13.277076 36.789902,6.7184623 14.111647,29.06366 c -0.183203,0.180447 -0.321119,0.400534 -0.40277,0.642744 l -2.679582,7.916247 c -0.215568,0.640182 0.402042,1.248632 1.051861,1.036261 l 8.035419,-2.639842 c 0.245538,-0.07949 0.468911,-0.214218 0.65242,-0.393517 L 43.44725,13.280356 Z" />
+  <path
+     d="m 1,43.131887 c 3e-7,2.716667 2.2354473,4.91896 4.9930109,4.91896 H 42.608424 c 2.757564,0 4.993011,-2.202293 4.993011,-4.91896 V 23.456045 c 0,-2.186204 -1.328674,-2.186204 -1.328674,0 v 19.675842 c 0,0.905555 -2.745149,3.639653 -3.664337,3.639653 H 5.9930109 c -0.4754104,0 -1.9689322,-0.413583 -2.7888096,-1.245081 C 2.4388771,44.750288 2.3299361,43.569081 2.328674,43.131887 L 2.2227418,6.4366288 C 2.2215058,6.0084722 2.5410073,4.8870569 3.310458,4.2704304 4.1683964,3.5828912 5.508427,3.4198568 5.9930109,3.4198568 H 27.629392 c 2.219115,0 2.219115,-1.279307 0,-1.279307 H 5.9930109 C 3.2354472,2.1405498 1.0000001,4.3428434 1,7.0595102 Z" />
+</svg>
+    		<div id="viewer"></div>
+    
+    </div>
+</div>
+
+<div id="footer"><a href="#" class="about" alt="display information about this website"><img src="images/info-circle.svg" height="16" title="about this website"/></a></div>
+ 
+   <script>
+
+	function copytext() {
+	  var copytext = document.getElementById("output");
+	  copytext.select();
+	  copytext.setSelectionRange(0, 99999); // For mobile devices
+	  navigator.clipboard.writeText(copytext.value);
+	}
+	
+	jQuery( document ).keydown(function(e) {
+	  if(e.shiftKey) { console.log("pressed"); }
+	});	
+
+
+  </script>
+ 
+</body>
+</html>

@@ -1,0 +1,260 @@
+body {
+  color:#333;
+  font-weight:bold;
+} 
+ 
+/* columns */
+
+.left-col {
+    float:left;
+    width:100%;
+}
+
+.right-col {
+    float:left;
+    width:100%;
+}
+
+#footer {
+ position: absolute;
+ left: 0px;
+ bottom: 40px;
+ background: #FFF;
+ padding: 0.7em;
+ border-radius: 20px 0 0 0;
+}
+
+@media (min-width:400px) {
+  .left-col { width:40%; }
+  .right-col {  width:60%; }
+} 
+ 
+  
+#gallery { 
+ display:flex;
+ width: 100%;
+ flex-wrap: wrap;
+ overflow-y:scroll;
+ max-height:500px;
+}
+
+.gallery-item { 
+  border:solid 1px #EEE;
+  display:inline-block;
+  width:12%;
+  padding:1%;
+  margin:1%;
+  cursor:pointer;
+  background: antiquewhite;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.gallery-item img { width:100%; }
+
+.active-item { border-bottom:2px solid red; }
+
+
+
+
+
+#viewer { 
+ height: 600px;
+ width:100%;
+ background:#222;
+ position:relative;
+ }
+.highlight {background:rgba(255, 0, 0, 0.3);}
+
+#openseadragon1 { background:#222; }
+
+
+
+
+body { margin:0px; }
+#crop { 
+ position:absolute;
+ top:0px;
+ right:0px;
+ z-index:900;
+ background: rgba(0,0,0,0.5);
+  padding:1em;
+}
+#crop.activated  { 
+ fill: goldenrod;
+ background:black;
+}
+
+input[type='text'], textarea { 
+ padding: 0.5em;
+ width: 100%;
+ color: #333;
+ background: #eee;
+ border: solid 1px #DDD;
+}
+
+ 
+#submit, #copy { 
+ padding:0.5em 1em;
+ background:#1967d2;
+ border:solid 0px black;
+ color:white;
+ cursor:pointer;
+}
+
+
+#result {
+  border-radius:10px;
+  background:white;
+  width:90%;
+  position:absolute;
+  top:20%;
+  z-index:999;
+  color:#333;
+  padding:2em;
+}
+#result.hidden { display:none; }
+
+
+
+
+.overlay {
+  display: none;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  right: 0px;
+  bottom: 0px;
+  /*background: rgba(0,50,120,0.8);*/
+  background:goldenrod;
+  z-index: 9999;
+  font-size: 3em;
+  color: white;
+  text-align: center;
+  padding-top: 20%;
+}
+ 
+ 
+/************ Preview bar ***************/ 
+ 
+#preview {
+  display: none;
+  position: absolute;
+  overflow-x:hidden;
+  bottom: -160px;
+  right: 0px;
+  background: rgba(0,0,0,0.7);
+  z-index: 999;
+  width: 100%;
+  height: 200px;
+  text-align: left;
+  transition: bottom 1s;
+  overflow: hidden;
+} 
+
+#preview.shown {
+  bottom: 0px; 
+  transition: bottom 1s;
+}
+
+
+.preview-hide{
+  position: absolute;
+  right: 0px;
+  top: 0px;
+  color: white;
+  font-size: 2em;
+  padding: 0.3em;
+  cursor:pointer;
+}
+.preview-tray { 
+  display:flex;
+  overflow-x:scroll;
+  padding:1em;
+}
+
+#preview .preview-item {
+  position: relative;
+  width: 140px;
+  height: 150px;
+  min-width: 140px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: black;
+  text-align:center;
+  margin: 0 1em 1em 0;
+}
+#preview img {
+  max-width:140px;
+  max-height:140px;
+  object-fit: contain;
+}
+.preview-item-tools {
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  font-weight: bold;
+  background: black;
+  padding: 2px 2px 4px 6px;
+}
+.preview-item-tools a {
+  color: white;
+  text-decoration:none;
+}
+
+/************ The Modal ***************/
+.modal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0,0,0); /* Fallback color */
+  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+  color:black;
+}
+
+/* Modal Content/Box */
+.modal-wrap {
+  background-color: #fefefe;
+  margin: 15% auto; /* 15% from the top and centered */
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%; /* Could be more or less, depending on screen size */
+}
+.modal-content { word-wrap: anywhere; }
+
+/* The Close Button */
+.modal-close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.modal-close:hover,
+.modal-close:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+
+
+
+/**************** test ****************/
+
+#mode { font-size:0.7em; font-weight:normal; }
+#mode input { display:none; }
+#mode label { cursor:pointer; }
+#mode label span{ padding:3px 4px; }
+#mode input[type="radio"]:checked + span{ font-weight: bold;background:#1967d2;color:white; } 
+
+
+
+
