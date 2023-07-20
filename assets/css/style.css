@@ -25,8 +25,8 @@ body {
 }
 
 @media (min-width:400px) {
-  .left-col { width:40%; }
-  .right-col {  width:60%; }
+  .left-col { width:30%; }
+  .right-col {  width:70%; }
 } 
  
   
@@ -41,7 +41,7 @@ body {
 .gallery-item { 
   border:solid 1px #EEE;
   display:inline-block;
-  width:12%;
+  width:19%;
   padding:1%;
   margin:1%;
   cursor:pointer;
@@ -52,7 +52,7 @@ body {
 }
 
 .gallery-item img { width:100%; }
-
+.gallery-item-active { border:2px solid red; }
 .active-item { border-bottom:2px solid red; }
 
 
@@ -165,9 +165,14 @@ input[type='text'], textarea {
   top: 0px;
   color: white;
   font-size: 2em;
-  padding: 0.3em;
   cursor:pointer;
+  padding: 0.3em 0.7em;
 }
+.preview-hide svg.shown{
+  tranform:rotate(180deg);
+}
+
+
 .preview-tray { 
   display:flex;
   overflow-x:scroll;

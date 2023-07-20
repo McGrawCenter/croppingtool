@@ -11,20 +11,21 @@
   	//var minThumbWidth = 500;
   
   
-       var h = jQuery(window).height();
-       jQuery("#viewer").css("height", h);
-       
-       
+  	// adjust the height of the gallery to the size of the screen
+	var h = jQuery(window).height();
+	jQuery("#viewer").css("height", h);
        var e1 = jQuery(".url-element").height();
        var e2 = jQuery(".output-element").height();
-       
-       
+      
        jQuery("#gallery").css("max-height",(h-190));
        jQuery( window ).resize(function() {
 	  jQuery("#viewer").css("height",jQuery(window).height());
        });
+       
+       
+       
 	
-	// init OSD
+	// initialize OSD
 	var viewer = OpenSeadragon({
 	    id: "viewer",
 	    prefixUrl: "assets/js/openseadragon/images/",
@@ -41,14 +42,24 @@
 	jQuery(document).on("click",".gallery-item",function(e){
 	
 	  // highlight this gallery item
-	  jQuery(".gallery-item").removeClass('active-item');
-	  jQuery(this).addClass('active-item');
+	  jQuery(".gallery-item").removeClass('gallery-item-active');
+	  jQuery(this).addClass('gallery-item-active');
+	  
+	  jQuery(".preview-item").removeClass('active-item');
 	  
 	  jQuery("#crop").removeClass("activated");
 	  selectionMode = false;
 	  viewer.setMouseNavEnabled(true);	  
 	  
+	  
 	  current_image = jQuery(this).attr('data-service');
+	  
+	  // i had orignally populate the output textarea with the full url when one clicked on the gallery item
+	  //var full_size = current_image+"/full/1200,/0/default.jpg";
+	  //jQuery("#output").val(full_size);
+	  
+	  jQuery("#image").prop("checked", true);
+	  
 	  var url = current_image+"/info.json";
 	  jQuery.get(url, function(data){
 	    viewer.open(data);
@@ -132,6 +143,7 @@
 		viewer.updateOverlay(drag.overlayElement, location);
 		
 		crop_url = current_image+"/"+p[0]+","+p[1]+","+p[2]+","+p[3]+"/"+overlayHeight+",/0/default.jpg";
+		uncropped_url = current_image+"/"+p[0]+","+p[1]+","+p[2]+","+p[3]+"/full/0/default.jpg"
 		
 		jQuery("#output").val(crop_url);
 		jQuery("#copy").show();
@@ -144,14 +156,16 @@
 		    manifest_url = jQuery("#url").val();
 		    var img_html = "<img src='"+crop_url+"' data-manifest='"+manifest_url+"'/>";
 
+
 		    jQuery("#preview").find('.preview-tray').prepend("<div class='preview-item' data-num='"+selections.length+"'>\
 		    <a href='#' class='selectcrop'>"+img_html+"</a>\
 		    <span class='preview-item-tools'>\
-		    <a href='"+crop_url+"' target='_blank'><img src='assets/images/external-white.svg' height='12'/></a>\
-		    <a href='#' class='preview-item-close'>&times;</a></span></div>");
+		    <a href='#'><img src='assets/images/info-circle-white.svg' height='15'/></a>\
+		    <a href='"+crop_url+"' target='_blank'><img src='assets/images/external-white.svg' height='15'/></a>\
+		    <a href='#' class='preview-item-close'><img src='assets/images/x-white.svg' height='15'/></a></span></div>");
 		    jQuery("#preview").addClass('shown').show();	    
 
-		    selections.push({"image":crop_url,"html":img_html}); 
+		    selections.push({"image":crop_url,"html":img_html, "full":uncropped_url }); 
 
 		    jQuery("#crop").removeClass("activated");
 		    selectionMode = false;
@@ -169,18 +183,6 @@
 
 
 
-
-	// this is here to prevent a new preview thumbnail
-	// from being created when the user turns off the 
-	// cropping tool by clicking the icon
-	/*
-	function existsInPreview(crop_url) {
-	  if(selections.indexOf(crop_url) != -1) {
-	     return true;
-	  }
-	  else { return false; }
-	}
-	*/
 
   	// activate or de-activate crop mode
 	
@@ -242,9 +244,13 @@
 	// show / hide preview bar
 	
 	jQuery(".preview-hide").click(function() {
-	  if(jQuery("#preview").hasClass('shown')) { jQuery("#preview").removeClass('shown'); }
+	  if(jQuery("#preview").hasClass('shown')) { 
+	     jQuery("#preview").removeClass('shown');
+	     jQuery(".preview-hide svg").removeClass('shown');
+	   }
 	  else {
 	    jQuery("#preview").addClass('shown');
+	    jQuery(".preview-hide svg").addClass('shown');
 	  }
 	});
 	
@@ -263,28 +269,37 @@
 	  jQuery("#output").attr('data-current',num);
 	});
 	
-	/*
-	jQuery(document).on("mouseover",".preview-item",function(e){
-	  var num = jQuery(this).attr('data-num');
-	  var mode = jQuery("#output").attr('data-mode');
-	  jQuery("#output").val(selections[num][mode]);
-	  jQuery("#output").attr('data-current',num);
-	});
-	*/
+
 	
-	
-	
-	
+
+
 	jQuery("#html").click(function(e){
 	  var current = jQuery("#output").attr('data-current');
 	  jQuery("#output").attr('data-mode','html');
-	  jQuery("#output").val(selections[current].html);
+	  if(typeof(selections) != 'undefined') { 
+	    jQuery("#output").val(selections[current].html);
+	  }
 	});
+	
+	
+	jQuery("#full").click(function(e){
+	  var current = jQuery("#output").attr('data-current');
+	  jQuery("#output").attr('data-mode','full');
+	  if(typeof(selections) != 'undefined') { 
+	    jQuery("#output").val(selections[current].full);
+	    console.log(selections);
+	  }
+	});
+	
+	
 	
 	jQuery("#image").click(function(e){
 	  var current = jQuery("#output").attr('data-current');
 	  jQuery("#output").attr('data-mode','image');
-	  jQuery("#output").val(selections[current].image);
+	  if(typeof(selections) !== 'undefined') { 
+	    jQuery("#output").val(selections[current].image);
+	    console.log(selections);
+	  }
 	});			
 	
 	

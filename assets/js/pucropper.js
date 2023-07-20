@@ -1,9 +1,14 @@
 
+  // each manifest loaded will be stored in an array item
+  var manifests = [];
 
   var version = 2;
   var images = [];
-  var metadata = {};
+  var label = "";
+  var metadata = [];
 
+  
+  
   
 
   /************************************
@@ -21,6 +26,7 @@
                   return response.json();
           })
           .then(data => {
+            // version 2
             if ("@type" in data) {
 
                 if (data["@type"] == 'sc:Collection') {
@@ -38,6 +44,7 @@
 		   console.log( 'Manifest Format Error', 'The JSON for this Manifest doesnt look like a Manifest. It should have either a @type of sc:Manifest but has a type of: ' + data["@type"]);
                 }
             } 
+            // version 3
             else if ("type" in data) {
                 if (data["type"] != 'Manifest') {
                     console.log( 'Manifest Format Error', 'The JSON for this Manifest doesnt look like a Manifest. It should have either a type of Manifest but has a type of: ' + data["type"]);
@@ -48,6 +55,7 @@
             } else {
                 console.log( 'Manifest Format Error', 'The JSON for this Manifest doesnt look like a Manifest. It should have either a @type or type value of Manifest');
             }
+
             
           })
           .catch(error => {
@@ -72,14 +80,6 @@
   *************************************/
   function parsev2 (manifest) {
   
-  /*
-      label = getLabel(manifest);
-      jQuery(".modal-content").empty();
-      jQuery(".modal-content").html(label);
-      metadata = parseMetadata(manifest.metadata);
-      jQuery(".modal-content").empty();
-      jQuery(".modal-content").html(label);      
-   */
 
       if(manifest.label && Array.isArray(manifest.label)) { 
          var label = manifest.label[0];
@@ -87,6 +87,9 @@
       else if(typeof manifest.label != 'undefined' && typeof manifest.label === "string") { 
          var label = manifest.label;
       }
+      parseMetadata(manifest);
+      
+      console.log(label);
       
       // thumbnail
       
@@ -145,6 +148,10 @@
       else { 
       
       }
+      // metadata
+      parseMetadata(manifest);
+      
+      console.log(label);
       
       // thumbnail
       if(manifest.thumbnail && typeof manifest.thumbnail === 'object') {  var thumbnail = manifest.thumbnail[0].id; }      
@@ -217,6 +224,11 @@
   }
   
   
+  
+  
+  
+  
+  
   function getLabel(manifest) {
     if(typeof manifest.label === "object") { return manifest.label[0]; }
     else if(typeof manifest.label === "array") { return manifest.label[0]; }
@@ -225,15 +237,19 @@
   }
   
   
-  function parseMetadata(metadata) {
-    var str = "";
-    jQuery.each(metadata, function(i,v){
-      if(typeof v === "object") { 
-        var label = v.label;
-        var value = v.value[0];
-        str += v.value[0];
-      }
-      else { console.log('other'); }
-      return str;
+  
+  
+  
+  function parseMetadata(manifest) {
+  
+    // first get the label
+    if(typeof manifest.label === "object") { label = manifest.label.toString(); }
+    else if(typeof manifest.label === "array") { label = manifest.label[0]; }
+    else if(typeof manifest.label === "string") { label = manifest.label; }
+    
+    // then get the metadata
+    jQuery.each(manifest.metadata, function(i,v){
+	//metadata[v.label.none.toString()] = v.value.none.toString();
     });
+    
   }
