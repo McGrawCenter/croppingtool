@@ -155,9 +155,10 @@
 		
 		    manifest_url = jQuery("#url").val();
 		    var img_html = "<img src='"+crop_url+"' data-manifest='"+manifest_url+"'/>";
-
-
-		    jQuery("#preview").find('.preview-tray').prepend("<div class='preview-item' data-num='"+selections.length+"'>\
+		    
+		    // add info to the selections array
+		    var selection_index = selections.push({"manifest":manifest_url,"detail":crop_url,"html":img_html, "full":uncropped_url })-1;
+		    jQuery("#preview").find('.preview-tray').prepend("<div class='preview-item' data-num='"+selections.length+"' data-selection='"+selection_index+"'>\
 		    <a href='#' class='selectcrop'>"+img_html+"</a>\
 		    <span class='preview-item-tools'>\
 		    <a href='#'><img src='assets/images/info-circle-white.svg' height='15'/></a>\
@@ -165,7 +166,7 @@
 		    <a href='#' class='preview-item-close'><img src='assets/images/x-white.svg' height='15'/></a></span></div>");
 		    jQuery("#preview").addClass('shown').show();	    
 
-		    selections.push({"image":crop_url,"html":img_html, "full":uncropped_url }); 
+		    
 
 		    jQuery("#crop").removeClass("activated");
 		    selectionMode = false;
@@ -182,9 +183,10 @@
 
 
 
-
-
-  	// activate or de-activate crop mode
+    
+	/*************************
+	* activate or de-activate crop mode
+	***********************************/
 	
 	jQuery('#crop').click( function() {  
 
@@ -202,7 +204,11 @@
 	}); 	
     
     
-    	// get the url vars
+    
+    
+	/*************************
+	* get the url vars
+	***********************************/
 
 	function getURLValues() {
 
@@ -241,7 +247,9 @@
 	
 		 
 	 
-	// show / hide preview bar
+	/*************************
+	* show / hide preview bar
+	***********************************/
 	
 	jQuery(".preview-hide").click(function() {
 	  if(jQuery("#preview").hasClass('shown')) { 
@@ -256,22 +264,39 @@
 	
 	
 	/******************
-	* 
+	* click on a preview item in the tray
 	*************************************************/
 	
 	jQuery(document).on("click",".preview-item",function(e){
+
 	  // highlight this gallery item
 	  jQuery(".preview-item").removeClass('active-item');
 	  jQuery(this).addClass("active-item");
+	  
 	  var num = jQuery(this).attr('data-num');
+	  
+	  //re-populate the url text field with the manifest url for this detail
+	  var previous_manifest_url = jQuery("#url").val();
+	  var selection_index = jQuery(this).attr('data-selection');
+	  var current_manifest_url = selections[selection_index].manifest;
+	  jQuery("#url").val(current_manifest_url);
+	  // if we are changing to a different manifest, reload the gallery of thumbs
+	  if(previous_manifest_url != current_manifest_url) {
+	      load(current_manifest_url);
+	  }
+	  
+	  //populate the output textarea with whatever mode is currently selected
 	  var mode = jQuery("#output").attr('data-mode');
-	  jQuery("#output").val(selections[num][mode]);
-	  jQuery("#output").attr('data-current',num);
+	  jQuery("#output").val(selections[selection_index][mode]);
+	  
+	  jQuery("#output").attr('data-current',selection_index);
 	});
 	
 
 	
-
+	/******************************
+	*  The three output textarea modes
+	********************************/
 
 	jQuery("#html").click(function(e){
 	  var current = jQuery("#output").attr('data-current');
@@ -293,17 +318,19 @@
 	
 	
 	
-	jQuery("#image").click(function(e){
+	jQuery("#detail").click(function(e){
 	  var current = jQuery("#output").attr('data-current');
-	  jQuery("#output").attr('data-mode','image');
+	  jQuery("#output").attr('data-mode','detail');
 	  if(typeof(selections) !== 'undefined') { 
-	    jQuery("#output").val(selections[current].image);
+	    jQuery("#output").val(selections[current].detail);
 	    console.log(selections);
 	  }
 	});			
 	
 	
-	// remove item from preview bar
+	/****************************
+	* remove item from preview bar
+	*****************************************/
 	
 	jQuery(document).on("click", ".preview-item-close", function(e) {
 	  jQuery(this).parent().parent().remove();

@@ -8,10 +8,10 @@
   <script src="assets/js/script.js?v=0.1.1"></script>
   <script src="assets/js/pucropper.js?v=0.1.1"></script>
   <script src="assets/js/dropzone.js?v=0.1"></script>
-  <!--<script src="js/modal.js"></script>-->
+  <script src="assets/js/modal.js?v=0.1"></script>
   <script src="assets/js/openseadragon/openseadragon.min.js"></script>
   <link type="text/css" rel="stylesheet" href="assets/css/style.css">
-  
+  <link rel="shortcut icon" type="image/jpg" href="assets/images/favicon.gif"/>
 </head>
 
 <body>
@@ -20,7 +20,7 @@
     <!-- -------------- overlays ---------------- -->
     <div id='dropzone' class='overlay'>Drop a manifest link here</div>
 
-<!--
+
     <div id="modal" class="modal">
       <div class="modal-wrap">
         <span class="modal-close">&times;</span>
@@ -29,7 +29,7 @@
         </p>
       </div>
     </div>
--->
+
     <div id="preview" class=''>
       <div class="preview-hide"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-caret-up-fill" viewBox="0 0 16 16">
   <path d="m7.247 4.86-4.796 5.481c-.566.647-.106 1.659.753 1.659h9.592a1 1 0 0 0 .753-1.659l-4.796-5.48a1 1 0 0 0-1.506 0z"/>
@@ -58,12 +58,12 @@
 	  </p>
 	  
 	  <p class='output-element' style="position:relative;display:flex;margin-bottom:0px;">
-	    <textarea id="output" rows='4' data-current='0' data-mode='image'></textarea>
+	    <textarea id="output" rows='4' data-current='0' data-mode='detail'></textarea>
 	    <button id="copy" style="position:absolute;right:0px;top:0px;font-size:0.8em;display:none;" onClick="javascript:copytext();return false;">Copy</button>
 	  </p>
 	  <p id="mode" style="margin-top:0px;">
-	     <label for="image">
-	       <input id='image' name='mode' type='radio' value='1' checked='checked'/>
+	     <label for="detail">
+	       <input id='detail' name='mode' type='radio' value='1' checked='checked'/>
 	       <span>Actual</span>
 	     </label>
 	     <label for="full">
