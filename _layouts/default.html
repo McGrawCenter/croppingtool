@@ -8,7 +8,12 @@
   <script src="assets/js/script.js?v=0.1.1"></script>
   <script src="assets/js/pucropper.js?v=0.1.1"></script>
   <script src="assets/js/dropzone.js?v=0.1"></script>
-  <script src="assets/js/modal.js?v=0.1"></script>
+  
+<!-- jQuery Modal -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-modal/0.9.1/jquery.modal.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-modal/0.9.1/jquery.modal.min.css" />
+  
+  <!--<script src="assets/js/modal.js?v=0.1"></script>-->
   <script src="assets/js/openseadragon/openseadragon.min.js"></script>
   <link type="text/css" rel="stylesheet" href="assets/css/style.css">
   <link rel="shortcut icon" type="image/jpg" href="assets/images/favicon.gif"/>
@@ -19,16 +24,16 @@
 
     <!-- -------------- overlays ---------------- -->
     <div id='dropzone' class='overlay'>Drop a manifest link here</div>
+    
+    
+<div id="modal" class="modal" style="display:none">
+  <p>The metadata</p>
+</div>
 
+<div id="about" class="about" style="display:none">
+  <p>About this project</p>
+</div>
 
-    <div id="modal" class="modal">
-      <div class="modal-wrap">
-        <span class="modal-close">&times;</span>
-        <p class='modal-content'>
-         THIS WILL BE THE METADATA
-        </p>
-      </div>
-    </div>
 
     <div id="preview" class=''>
       <div class="preview-hide"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-caret-up-fill" viewBox="0 0 16 16">
@@ -97,7 +102,7 @@
     </div>
 </div>
 
-<div id="footer"><a href="#" class="about" alt="display information about this website"><img src="assets/images/info-circle.svg" height="16" title="about this website"/></a></div>
+<div id="footer"><a href="#about" rel="modal:open" class="about" alt="display information about this website"><img src="assets/images/info-circle.svg" height="16" title="about this website"/></a></div>
  
    <script>
 

@@ -1,7 +1,4 @@
 
-  // each manifest loaded will be stored in an array item
-  var manifests = [];
-
   var version = 2;
   var images = [];
   var label = "";
@@ -80,6 +77,8 @@
   *************************************/
   function parsev2 (manifest) {
   
+      metadata = manifest.metadata;
+      console.log(metadata);
 
       if(manifest.label && Array.isArray(manifest.label)) { 
          var label = manifest.label[0];
@@ -134,6 +133,7 @@
   function parsev3 (manifest) {
   
       metadata = manifest.metadata;
+      console.log(metadata);
   
       if(manifest.label && typeof manifest.label === "object") { 
          var label = Object.values(manifest.label)[0][0];
@@ -251,5 +251,5 @@
     jQuery.each(manifest.metadata, function(i,v){
 	//metadata[v.label.none.toString()] = v.value.none.toString();
     });
-    
+    jQuery("#modal").html("<p>"+label+"</p>");
   }

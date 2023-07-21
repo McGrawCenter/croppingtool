@@ -161,7 +161,7 @@
 		    jQuery("#preview").find('.preview-tray').prepend("<div class='preview-item' data-num='"+selections.length+"' data-selection='"+selection_index+"'>\
 		    <a href='#' class='selectcrop'>"+img_html+"</a>\
 		    <span class='preview-item-tools'>\
-		    <a href='#'><img src='assets/images/info-circle-white.svg' height='15'/></a>\
+		    <a href='#' class='preview-item-metadata'><img src='assets/images/info-circle-white.svg' height='15'/></a>\
 		    <a href='"+crop_url+"' target='_blank'><img src='assets/images/external-white.svg' height='15'/></a>\
 		    <a href='#' class='preview-item-close'><img src='assets/images/x-white.svg' height='15'/></a></span></div>");
 		    jQuery("#preview").addClass('shown').show();	    
@@ -337,6 +337,23 @@
 	  e.preventDefault();
 	});	 
     
+	/****************************
+	* click on info icon in preview item
+	*****************************************/
+	
+	jQuery(document).on("click", ".preview-item-metadata", function(e) {
+	
+	  var m = "<h3>"+label+"</h3>";
+	  jQuery.each(metadata, function(i,v){
+	    console.log(v);
+	    m += "<p>"+v.label+": "+v.value+"</p>";
+	  })
+	
+	  jQuery('#modal').html(m);
+	  jQuery('#modal').modal();
+	  console.log(metadata);
+	  e.preventDefault();
+	});	
   
   });
   
