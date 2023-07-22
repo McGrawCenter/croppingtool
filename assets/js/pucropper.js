@@ -33,8 +33,7 @@
                 
                 else if (data["@type"] == 'sc:Manifest') {
                     version = 2;
-                    parsev2(data);                 
-                    
+                    parsev2(data);
                 }
                 
                 else {
@@ -76,22 +75,20 @@
   * 
   *************************************/
   function parsev2 (manifest) {
-  
-      metadata = manifest.metadata;
-      console.log(metadata);
 
-      if(manifest.label && Array.isArray(manifest.label)) { 
-         var label = manifest.label[0];
-       }
-      else if(typeof manifest.label != 'undefined' && typeof manifest.label === "string") { 
-         var label = manifest.label;
-      }
-      parseMetadata(manifest);
+      var id = getFirstValue(manifest['@id']);
       
-      console.log(label);
+      // initialize an object that will contain info
+      var o = {'label':'', 'metadata':[], images:[]}
+      
+      o.label = getFirstValue(manifest.label);
+      o.description = getFirstValue(manifest.description);
+      o.metadata = parseMetadata(manifest.metadata); 
+     
+     
       
       // thumbnail
-      
+      /*
       if(manifest.thumbnail && typeof manifest.thumbnail === 'object') { 
          var thumbnail = manifest.thumbnail['@id'];
        }
@@ -100,30 +97,32 @@
         var firstcanvas = manifest.sequences[0].canvases[0];
         var thumbnail = getCanvasThumbnail(firstcanvas, 150,150);
       }      
-
+      */
+      
+      
       if(manifest.sequences) {
         var sequences = manifest.sequences;
         for (const sequence of sequences) {
           if ('canvases' in sequence) {
             for (const canvas of sequence.canvases) {
               var thumb = getCanvasThumbnail(canvas, 150,150);
+              
               if(thumb !== false) {
                 var label = canvas.label;
-              
-                //var thumb = canvas.thumbnail['@id'];
-
                 var url = canvas.images[0].resource.service["@id"];
-                var o = {}
-                o.label = label;
-                o.thumb = thumb;
-                o.url = url;
-                images.push(o);
+                var r = {}
+                r.label = label;
+                r.thumb = thumb;
+                r.url = url;
+                o.images.push(r);
               }
             }
           }
         }
-      }      
-      buildGallery();
+      }    
+      masterlist[id] = o;
+      current_id = id;
+      buildGallery(id);
   }
 
 
@@ -132,9 +131,18 @@
   *************************************/
   function parsev3 (manifest) {
   
-      metadata = manifest.metadata;
-      console.log(metadata);
+      var id = getFirstValue(manifest['id']);  
+      
+      
+      // initialize an object that will contain info
+      var o = {'label':'', 'metadata':[], images:[]}
+      
+      o.label = getFirstValue(manifest.label);
+      o.description = getFirstValue(manifest.description);
+      o.metadata = parseMetadata(manifest.metadata); 
+      
   
+  /*
       if(manifest.label && typeof manifest.label === "object") { 
          var label = Object.values(manifest.label)[0][0];
        }    
@@ -149,9 +157,10 @@
       
       }
       // metadata
-      parseMetadata(manifest);
+      parseMetadata(manifest.metadata);
       
-      console.log(label);
+      //console.log(label);
+      */
       
       // thumbnail
       if(manifest.thumbnail && typeof manifest.thumbnail === 'object') {  var thumbnail = manifest.thumbnail[0].id; }      
@@ -169,14 +178,16 @@
             //var thumb = getCanvasThumbnail(item, 150,150);
             var thumb = item.thumbnail[0]['id'];
             var url = item.items[0].items[0].body.service[0]['@id'];
-            var o = {}
-            o.label = label;
-            o.thumb = thumb;
-            o.url = url;
-            images.push(o);
+            var r = {}
+            r.label = label;
+            r.thumb = thumb;
+            r.url = url;
+            o.images.push(r);
         }
-      }      
-      buildGallery();
+      } 
+      masterlist[id] = o;
+      current_id = id; 
+      buildGallery(id);
   }
   
   /************************************
@@ -215,8 +226,10 @@
    
 
   
-  function buildGallery() {
-    //jQuery("#gallery").empty();
+  function buildGallery(id) {
+    
+    var images = masterlist[id].images;
+    jQuery("#gallery").empty();
     jQuery.each(images, function(i,v){ 
       jQuery("#gallery").append("<div class='gallery-item' data-service='"+v.url+"'><img src='"+v.thumb+"'/></div>");
     });
@@ -240,16 +253,34 @@
   
   
   
-  function parseMetadata(manifest) {
+  function parseMetadata(metadata) {
   
-    // first get the label
-    if(typeof manifest.label === "object") { label = manifest.label.toString(); }
-    else if(typeof manifest.label === "array") { label = manifest.label[0]; }
-    else if(typeof manifest.label === "string") { label = manifest.label; }
-    
+    var a = [];
+   
     // then get the metadata
-    jQuery.each(manifest.metadata, function(i,v){
-	//metadata[v.label.none.toString()] = v.value.none.toString();
+    jQuery.each(metadata, function(i,v){
+        var label = getFirstValue(v.label);
+        var value = getFirstValue(v.value);
+        var r = { "label": label, "value": value }
+	a.push(r);
     });
-    jQuery("#modal").html("<p>"+label+"</p>");
+    return a;
+    
   }
+  
+  
+  
+  
+  function getFirstValue(o) {
+    if(typeof o === "object") { 
+       var x = Object.values(o)[0];
+       if(typeof x == 'object') { return Object.values(x)[0]; }
+       else{ return x; }
+    }
+    else if(typeof o === "array") { return o.label[0]; }
+    else if(typeof o === "string") { return o; }
+    else { return ""; }
+  }
+  
+  
+  

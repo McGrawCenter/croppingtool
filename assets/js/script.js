@@ -1,13 +1,24 @@
   
-  jQuery(document).ready(function(){
   
   
+       /****************
+       * masterlist contains records of each manifest that is added to the tool
+       * with title, descr, metadata, and images
+       ***********************************/
+  	var masterlist = {};
+  	var current_id = "";
     	var overlay = false;
     	var selectionMode = false;	
     	var crop_url = "";
   	var current_image = "";
   	var manifest_url = "";
+  	
+  	/****************
+  	* selections is a list of the crops
+  	**********************************/
   	var selections = []; 
+  	
+  	
   	//var minThumbWidth = 500;
   
   
@@ -75,6 +86,9 @@
 	  manifest_url = url;
 	  load(url);
 	});
+	
+	
+	
 	
 	    	
     	// draw overlays
@@ -161,7 +175,7 @@
 		    jQuery("#preview").find('.preview-tray').prepend("<div class='preview-item' data-num='"+selections.length+"' data-selection='"+selection_index+"'>\
 		    <a href='#' class='selectcrop'>"+img_html+"</a>\
 		    <span class='preview-item-tools'>\
-		    <a href='#' class='preview-item-metadata'><img src='assets/images/info-circle-white.svg' height='15'/></a>\
+		    <a href='#' class='preview-item-metadata' rel='"+current_id+"'><img src='assets/images/info-circle-white.svg' height='15'/></a>\
 		    <a href='"+crop_url+"' target='_blank'><img src='assets/images/external-white.svg' height='15'/></a>\
 		    <a href='#' class='preview-item-close'><img src='assets/images/x-white.svg' height='15'/></a></span></div>");
 		    jQuery("#preview").addClass('shown').show();	    
@@ -343,22 +357,17 @@
 	
 	jQuery(document).on("click", ".preview-item-metadata", function(e) {
 	
-	  var m = "<h3>"+label+"</h3>";
-	  jQuery.each(metadata, function(i,v){
-	    console.log(v);
-	    m += "<p>"+v.label+": "+v.value+"</p>";
-	  })
-	
-	  jQuery('#modal').html(m);
-	  jQuery('#modal').modal();
-	  console.log(metadata);
+	   var  o = masterlist[current_id];
+	   var html = "";
+	   html += "<p><label for='title'>Title</label><span id='title'>"+o.label+"</span></p>";
+	   html += "<p><label for='descr'>Description</label><span id='descr'>"+o.description+"</span></p>";
+	   
+	   jQuery.each(o.metadata, function(i,v) {
+	     html += "<p><label for='"+v.label+"'>"+v.label+"</label><span id='"+v.label+"'>"+v.value+"</span></p>";
+	   });
+	   jQuery('#modal_content').html(html);
+	   jQuery('#modal').modal();
+
 	  e.preventDefault();
 	});	
-  
-  });
-  
-  
-	
-	
-
 
