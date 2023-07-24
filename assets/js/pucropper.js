@@ -14,49 +14,55 @@
   function load(manifest_uri) {
   
     jQuery("#gallery").empty();
+    console.log(manifest_uri.search(/\/([0-9]{1,3})\/(color|gray|bitonal|default)\.(png|jpg)/));
+    if(manifest_uri.search(/\/([0-9]{1,3})\/(color|gray|bitonal|default)\.(png|jpg)/) > 0) { 
+        parseSingleImage(manifest_uri)
+    }
+    else {
+	    fetch(manifest_uri)
+		  .then(response => {
+		          if (!response.ok) {
+		              throw new Error(response.statusText);
+		          }
+		          return response.json();
+		  })
+		  .then(data => {
+		    // version 2
+		    if ("@type" in data) {
 
-    fetch(manifest_uri)
-          .then(response => {
-                  if (!response.ok) {
-                      throw new Error(response.statusText);
-                  }
-                  return response.json();
-          })
-          .then(data => {
-            // version 2
-            if ("@type" in data) {
+		        if (data["@type"] == 'sc:Collection') {
+		            version = 2;
+		            parsev2Collection(data);
+		        }
+		        
+		        else if (data["@type"] == 'sc:Manifest') {
+		            version = 2;
+		            parsev2(data);
+		        }
+		        
+		        else {
+			   console.log( 'Manifest Format Error', 'The JSON for this Manifest doesnt look like a Manifest. It should have either a @type of sc:Manifest but has a type of: ' + data["@type"]);
+		        }
+		    } 
+		    // version 3
+		    else if ("type" in data) {
+		        if (data["type"] != 'Manifest') {
+		            console.log( 'Manifest Format Error', 'The JSON for this Manifest doesnt look like a Manifest. It should have either a type of Manifest but has a type of: ' + data["type"]);
+		        } else {
+		            version = 3;
+		            parsev3(data);
+		        }
+		    } 
+		    else {
+		        console.log( 'Manifest Format Error', 'The JSON for this Manifest doesnt look like a Manifest. It should have either a @type or type value of Manifest');
+		    }
 
-                if (data["@type"] == 'sc:Collection') {
-                    version = 2;
-                    parsev2Collection(data);
-                }
-                
-                else if (data["@type"] == 'sc:Manifest') {
-                    version = 2;
-                    parsev2(data);
-                }
-                
-                else {
-		   console.log( 'Manifest Format Error', 'The JSON for this Manifest doesnt look like a Manifest. It should have either a @type of sc:Manifest but has a type of: ' + data["@type"]);
-                }
-            } 
-            // version 3
-            else if ("type" in data) {
-                if (data["type"] != 'Manifest') {
-                    console.log( 'Manifest Format Error', 'The JSON for this Manifest doesnt look like a Manifest. It should have either a type of Manifest but has a type of: ' + data["type"]);
-                } else {
-                    version = 3;
-                    parsev3(data);
-                }
-            } else {
-                console.log( 'Manifest Format Error', 'The JSON for this Manifest doesnt look like a Manifest. It should have either a @type or type value of Manifest');
-            }
-
-            
-          })
-          .catch(error => {
-                console.log( 'Manifest retrieval error', 'I was unable to get the Manifest you supplied due to: ' + error);
-      }); // end fetch
+		    
+		  })
+		  .catch(error => {
+		        console.log( 'Manifest retrieval error', 'I was unable to get the Manifest you supplied due to: ' + error);
+	      }); // end fetch
+	}  // end if/else
   }
 
 
@@ -70,9 +76,29 @@
      }
   }
   
+  function parseSingleImage(url) {
+  
+      var s = url.split("/").slice(0,-4);
+      console.log(s);
+      var id = s.join("/");
+      console.log(id);
+      // initialize an object that will contain info
+      var o = {'label':'', 'metadata':[], images:[]}
+      o.label = "No title";
+      o.description = "No description";
+      var r = {}
+      r.label = "";
+      r.thumb = url;
+      r.url = id;
+      o.images.push(r);      
+      masterlist[id] = o;
+      current_id = id;
+      buildGallery(id);
+  }
+  
   
   /************************************
-  * 
+  * Prase a version 2 manifest
   *************************************/
   function parsev2 (manifest) {
 
@@ -83,22 +109,7 @@
       
       o.label = getFirstValue(manifest.label);
       o.description = getFirstValue(manifest.description);
-      o.metadata = parseMetadata(manifest.metadata); 
-     
-     
-      
-      // thumbnail
-      /*
-      if(manifest.thumbnail && typeof manifest.thumbnail === 'object') { 
-         var thumbnail = manifest.thumbnail['@id'];
-       }
-      else if(manifest.thumbnail && typeof manifest.thumbnail === "string") { var thumbnail = manifest.thumbnail; }      
-      else {
-        var firstcanvas = manifest.sequences[0].canvases[0];
-        var thumbnail = getCanvasThumbnail(firstcanvas, 150,150);
-      }      
-      */
-      
+      o.metadata = parseMetadata(manifest.metadata);    
       
       if(manifest.sequences) {
         var sequences = manifest.sequences;
@@ -127,7 +138,7 @@
 
 
   /************************************
-  * 
+  * Parse a version 3 manifest
   *************************************/
   function parsev3 (manifest) {
   
