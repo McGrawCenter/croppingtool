@@ -242,7 +242,7 @@
     var images = masterlist[id].images;
     jQuery("#gallery").empty();
     jQuery.each(images, function(i,v){ 
-      jQuery("#gallery").append("<div class='gallery-item' data-service='"+v.url+"'><img src='"+v.thumb+"'/></div>");
+      jQuery("#gallery").append("<div class='gallery-item' data-service='"+v.url+"' alt='image "+i+"'><img src='"+v.thumb+"'/></div>");
     });
     images = [];
   }
