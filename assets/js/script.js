@@ -187,6 +187,11 @@
 		    jQuery("#preview").find('.preview-tray').prepend(preview_item);
 		    
 		    jQuery("#preview").addClass('shown').show();
+		    
+		    // revert output mode back to detail
+		    jQuery("#detail").prop("checked", true);
+		    jQuery("#output").attr('data-mode','detail');
+	  	    jQuery("#output").val(selections[0].detail);
 
 		    jQuery("#crop").removeClass("activated");
 		    selectionMode = false;
@@ -326,7 +331,6 @@
 	  if(typeof(selections) !== 'undefined') { 
 	    jQuery(".preview-item.active-item").find('.preview-item-external').attr('href',selections[current].detail);
 	    jQuery("#output").val(selections[current].detail);
-	    console.log(selections);
 	  }
 	});	
 	
@@ -336,7 +340,6 @@
 	  if(typeof(selections) != 'undefined') { 
 	    jQuery(".preview-item.active-item").find('.preview-item-external').attr('href',selections[current].full);
 	    jQuery("#output").val(selections[current].full);
-	    console.log(selections);
 	  }
 	});
 
