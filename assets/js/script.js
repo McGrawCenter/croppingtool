@@ -172,15 +172,21 @@
 		    
 		    // add info to the selections array
 		    var selection_index = selections.push({"manifest":manifest_url,"detail":crop_url,"html":img_html, "full":uncropped_url })-1;
-		    jQuery("#preview").find('.preview-tray').prepend("<div class='preview-item' data-num='"+selections.length+"' data-selection='"+selection_index+"'>\
+		    
+		    // if any items in the tray are currently active, remove active class
+		    jQuery(".preview-item.active-item").removeClass('active-item'); 		    
+
+		    //construct html of thumbnail in bottom tray
+		    var preview_item = "<div class='preview-item active-item' data-num='"+selections.length+"' data-selection='"+selection_index+"'>\
 		    <a href='#' class='selectcrop'>"+img_html+"</a>\
 		    <span class='preview-item-tools'>\
 		    <a href='#' class='preview-item-metadata' rel='"+current_id+"'><img src='assets/images/info-circle-white.svg' height='15'/></a>\
-		    <a href='"+crop_url+"' target='_blank'><img src='assets/images/external-white.svg' height='15'/></a>\
-		    <a href='#' class='preview-item-close'><img src='assets/images/x-white.svg' height='15'/></a></span></div>");
-		    jQuery("#preview").addClass('shown').show();	    
-
+		     <a href='"+crop_url+"' class='preview-item-external' target='_blank'><img src='assets/images/external-white.svg' height='15'/></a>\
+		     <a href='#' class='preview-item-close'><img src='assets/images/x-white.svg' height='15'/></a></span></div>";
 		    
+		    jQuery("#preview").find('.preview-tray').prepend(preview_item);
+		    
+		    jQuery("#preview").addClass('shown').show();
 
 		    jQuery("#crop").removeClass("activated");
 		    selectionMode = false;
@@ -312,34 +318,39 @@
 	*  The three output textarea modes
 	********************************/
 
-	jQuery("#html").click(function(e){
-	  var current = jQuery("#output").attr('data-current');
-	  jQuery("#output").attr('data-mode','html');
-	  if(typeof(selections) != 'undefined') { 
-	    jQuery("#output").val(selections[current].html);
-	  }
-	});
-	
-	
-	jQuery("#full").click(function(e){
-	  var current = jQuery("#output").attr('data-current');
-	  jQuery("#output").attr('data-mode','full');
-	  if(typeof(selections) != 'undefined') { 
-	    jQuery("#output").val(selections[current].full);
-	    console.log(selections);
-	  }
-	});
-	
-	
+
 	
 	jQuery("#detail").click(function(e){
 	  var current = jQuery("#output").attr('data-current');
 	  jQuery("#output").attr('data-mode','detail');
 	  if(typeof(selections) !== 'undefined') { 
+	    jQuery(".preview-item.active-item").find('.preview-item-external').attr('href',selections[current].detail);
 	    jQuery("#output").val(selections[current].detail);
 	    console.log(selections);
 	  }
-	});			
+	});	
+	
+	jQuery("#full").click(function(e){
+	  var current = jQuery("#output").attr('data-current');
+	  jQuery("#output").attr('data-mode','full');
+	  if(typeof(selections) != 'undefined') { 
+	    jQuery(".preview-item.active-item").find('.preview-item-external').attr('href',selections[current].full);
+	    jQuery("#output").val(selections[current].full);
+	    console.log(selections);
+	  }
+	});
+
+
+	jQuery("#html").click(function(e){
+	  var current = jQuery("#output").attr('data-current');
+	  jQuery("#output").attr('data-mode','html');
+	  if(typeof(selections) != 'undefined') { 
+	    jQuery(".preview-item.active-item").find('.preview-item-external').attr('href',selections[current].detail);
+	    jQuery("#output").val(selections[current].html);
+	  }
+	});
+	
+			
 	
 	
 	/****************************
