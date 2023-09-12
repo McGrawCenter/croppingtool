@@ -3,8 +3,12 @@
   var images = [];
   var label = "";
   var metadata = [];
-
-  
+  // this is so that we only empty the gallery
+  // when someone adds a new manifest url
+  // (a collection manifest contains multiple manifests
+  //  and we don't want to empty the gallery after each one. 
+  //  But if someone added a different manifest, we want to empty it)
+  var submitted = 0;
   
   
 
@@ -14,7 +18,7 @@
   function load(manifest_uri) {
   
     jQuery("#gallery").empty();
-    console.log(manifest_uri.search(/\/([0-9]{1,3})\/(color|gray|bitonal|default)\.(png|jpg)/));
+    //console.log(manifest_uri.search(/\/([0-9]{1,3})\/(color|gray|bitonal|default)\.(png|jpg)/));
     if(manifest_uri.search(/\/([0-9]{1,3})\/(color|gray|bitonal|default)\.(png|jpg)/) > 0) { 
         parseSingleImage(manifest_uri)
     }
@@ -63,6 +67,7 @@
 		        console.log( 'Manifest retrieval error', 'I was unable to get the Manifest you supplied due to: ' + error);
 	      }); // end fetch
 	}  // end if/else
+	
   }
 
 
@@ -238,12 +243,19 @@
 
   
   function buildGallery(id) {
-    
     var images = masterlist[id].images;
-    jQuery("#gallery").empty();
+    if(submitted == 1) {
+       jQuery("#gallery").empty();
+       submitted = 0;
+    }
+    console.log(masterlist);
+    var para = jQuery("<ul></ul>");
+
     jQuery.each(images, function(i,v){ 
-      jQuery("#gallery").append("<div class='gallery-item' data-service='"+v.url+"' alt='image "+i+"'><img src='"+v.thumb+"'/></div>");
+      para.append("<li class='gallery-item' data-manifest='"+id+"' data-service='"+v.url+"' alt='image "+i+"'><img src='"+v.thumb+"'/></li>");
+      //jQuery("#gallery ul").append();
     });
+    jQuery("#gallery").append(para);
     images = [];
   }
   

@@ -1,17 +1,23 @@
   
   
   
-       /****************
-       * masterlist contains records of each manifest that is added to the tool
-       * with title, descr, metadata, and images
-       ***********************************/
-  	var masterlist = {};
+
   	var current_id = "";
+  	// outputs is an object that holds the current output urls that will
+  	// be displayed in the output window for whatever is currently selected
+  	
+  	var outputs = {'manifest':'', 'service':'','detail':'','full':'','html':''};
     	var overlay = false;
     	var selectionMode = false;	
     	var crop_url = "";
   	var current_image = "";
   	var manifest_url = "";
+  	
+       /****************
+       * masterlist contains records of each manifest that is added to the tool
+       * with title, descr, metadata, and images
+       ***********************************/
+  	var masterlist = {};  	
   	
   	/****************
   	* selections is a list of the crops
@@ -52,27 +58,40 @@
 	// select a gallery item
 	jQuery(document).on("click",".gallery-item",function(e){
 	
+	  var manifest_url = jQuery(this).attr('data-manifest');
+	  service = jQuery(this).attr('data-service');
+	
 	  // highlight this gallery item
 	  jQuery(".gallery-item").removeClass('gallery-item-active');
 	  jQuery(this).addClass('gallery-item-active');
 	  
+	  // un-hilight any tray thumbs that might be highlighted
 	  jQuery(".preview-item").removeClass('active-item');
+	  
 	  
 	  jQuery("#crop").removeClass("activated");
 	  selectionMode = false;
 	  viewer.setMouseNavEnabled(true);	  
 	  
 	  
-	  current_image = jQuery(this).attr('data-service');
-	  
 	  // i had orignally populate the output textarea with the full url when one clicked on the gallery item
-	  //var full_size = current_image+"/full/1200,/0/default.jpg";
-	  //jQuery("#output").val(full_size);
+	  var full_size = service+"/full/full/0/default.jpg";
+
+	  outputs = { 
+	    'manifest':manifest_url,
+	    'service': service,
+	    'detail':full_size,
+	    'full':full_size,
+	    'html':"<img src='"+full_size+"' data-manifest='https://data.artmuseum.princeton.edu/iiif/objects/23888'/>"
+	  }
+	  
+	  // update the urls that appear in the output textarea
+	  updateOutputURLs();
 	  
 	  jQuery("#image").prop("checked", true);
 	  
-	  var url = current_image+"/info.json";
-	  jQuery.get(url, function(data){
+
+	  jQuery.get(outputs.service+"/info.json", function(data){
 	    viewer.open(data);
 	    viewer.tileSources.unshift(data);
 	  });	  
@@ -84,6 +103,7 @@
 	jQuery("#submit").click(function(){
 	  var url = jQuery("#url").val();
 	  manifest_url = url;
+	  submitted = 1;
 	  load(url);
 	});
 	
@@ -103,7 +123,6 @@
 		}
 	      
 		if (overlay) {
-		    console.log('removing overlay');
 		    viewer.removeOverlay("overlay");
 		}
 		var overlayElement = document.createElement("div");
@@ -156,31 +175,33 @@
 	      		      
 		viewer.updateOverlay(drag.overlayElement, location);
 		
-		crop_url = current_image+"/"+p[0]+","+p[1]+","+p[2]+","+p[3]+"/"+overlayHeight+",/0/default.jpg";
-		uncropped_url = current_image+"/"+p[0]+","+p[1]+","+p[2]+","+p[3]+"/full/0/default.jpg"
-		
-		jQuery("#output").val(crop_url);
-		jQuery("#copy").show();
-	      
+		crop_url = outputs.service+"/"+p[0]+","+p[1]+","+p[2]+","+p[3]+"/"+overlayHeight+",/0/default.jpg";
+		uncropped_url = outputs.service+"/"+p[0]+","+p[1]+","+p[2]+","+p[3]+"/full/0/default.jpg"
+			
+		updateOutputURLs();
 	    },
 	    releaseHandler: function(event) {
 
 		if(selectionMode==true) { 
 		
 		    manifest_url = jQuery("#url").val();
+		    
 		    var img_html = "<img src='"+crop_url+"' data-manifest='"+manifest_url+"'/>";
+		     
 		    
 		    // add info to the selections array
-		    var selection_index = selections.push({"manifest":manifest_url,"detail":crop_url,"html":img_html, "full":uncropped_url })-1;
+		    var selection_index = selections.push({"id":"", "manifest":manifest_url,"detail":crop_url,"html":img_html, "full":uncropped_url, "mode": "detail"})-1;
 		    
 		    // if any items in the tray are currently active, remove active class
 		    jQuery(".preview-item.active-item").removeClass('active-item'); 		    
 
 		    //construct html of thumbnail in bottom tray
-		    var preview_item = "<div class='preview-item active-item' data-num='"+selections.length+"' data-selection='"+selection_index+"'>\
+
+		    //var preview_item = "<div class='preview-item active-item' data-num='"+selections.length+"' data-selection='"+selection_index+"'>\
+		    var preview_item = "<div class='preview-item active-item' data-service='"+outputs.service+"' data-selection='"+selection_index+"'>\
 		    <a href='#' class='selectcrop'>"+img_html+"</a>\
 		    <span class='preview-item-tools'>\
-		    <a href='#' class='preview-item-metadata' rel='"+current_id+"'><img src='assets/images/info-circle-white.svg' height='15'/></a>\
+		     <a href='#' class='preview-item-metadata' rel='"+manifest_url+"'><img src='assets/images/info-circle-white.svg' height='15'/></a>\
 		     <a href='"+crop_url+"' class='preview-item-external' target='_blank'><img src='assets/images/external-white.svg' height='15'/></a>\
 		     <a href='#' class='preview-item-close'><img src='assets/images/x-white.svg' height='15'/></a></span></div>";
 		    
@@ -191,14 +212,26 @@
 		    // revert output mode back to detail
 		    jQuery("#detail").prop("checked", true);
 		    jQuery("#output").attr('data-mode','detail');
-	  	    jQuery("#output").val(selections[0].detail);
+	  	    //jQuery("#output").val(selections[0].detail);
 
 		    jQuery("#crop").removeClass("activated");
 		    selectionMode = false;
 		    viewer.setMouseNavEnabled(true);
 		    if (overlay) {
 			    viewer.removeOverlay("overlay");
-		    }	     
+		    }
+		    
+		    outputs = { 
+		      'manifest':manifest_url,
+		      'service': service,
+		      'detail':crop_url,
+		      'full':uncropped_url,
+		      'html':img_html
+		    }
+		    jQuery("#output").attr('data-mode','detail');
+		    	    
+		    updateOutputURLs();
+		    console.log(outputs);
 		} 
 
 		drag = null;
@@ -298,7 +331,16 @@
 	  jQuery(".preview-item").removeClass('active-item');
 	  jQuery(this).addClass("active-item");
 	  
-	  var num = jQuery(this).attr('data-num');
+	  var num = jQuery(this).attr('data-num');  
+	  var manifest_url = jQuery(this).attr('rel');
+	  var selection_index = jQuery(this).attr('data-selection');
+
+	  outputs = { 
+	    'manifest':manifest_url,
+	    'detail':selections[selection_index]['detail'],
+	    'full':selections[selection_index]['full'],
+	    'html':selections[selection_index]['html']
+	  }
 	  
 	  //re-populate the url text field with the manifest url for this detail
 	  var previous_manifest_url = jQuery("#url").val();
@@ -311,10 +353,12 @@
 	  }
 	  
 	  //populate the output textarea with whatever mode is currently selected
-	  var mode = jQuery("#output").attr('data-mode');
-	  jQuery("#output").val(selections[selection_index][mode]);
+	  //var mode = jQuery("#output").attr('data-mode');
+	  updateOutputURLs();
 	  
-	  jQuery("#output").attr('data-current',selection_index);
+	  //jQuery("#output").val(selections[selection_index][mode]);
+	  
+	  //jQuery("#output").attr('data-current',selection_index);
 	});
 	
 
@@ -326,34 +370,31 @@
 
 	
 	jQuery("#detail").click(function(e){
-	  var current = jQuery("#output").attr('data-current');
-	  jQuery("#output").attr('data-mode','detail');
-	  if(typeof(selections) !== 'undefined') { 
-	    jQuery(".preview-item.active-item").find('.preview-item-external').attr('href',selections[current].detail);
-	    jQuery("#output").val(selections[current].detail);
-	  }
+	   //set the val of the output texarea
+	   jQuery("#output").val(outputs.detail).attr('data-mode','detail');
+	   //set the href of the external link if there is a highlighted crop item
+	   jQuery(".preview-item.active-item").find(".preview-item-external").attr('href',outputs.detail);
 	});	
 	
 	jQuery("#full").click(function(e){
-	  var current = jQuery("#output").attr('data-current');
-	  jQuery("#output").attr('data-mode','full');
-	  if(typeof(selections) != 'undefined') { 
-	    jQuery(".preview-item.active-item").find('.preview-item-external').attr('href',selections[current].full);
-	    jQuery("#output").val(selections[current].full);
-	  }
+	  jQuery("#output").val(outputs.full).attr('data-mode','full');
+	  jQuery(".preview-item.active-item").find(".preview-item-external").attr('href',outputs.full);
 	});
 
 
 	jQuery("#html").click(function(e){
-	  var current = jQuery("#output").attr('data-current');
-	  jQuery("#output").attr('data-mode','html');
-	  if(typeof(selections) != 'undefined') { 
-	    jQuery(".preview-item.active-item").find('.preview-item-external').attr('href',selections[current].detail);
-	    jQuery("#output").val(selections[current].html);
-	  }
+	  jQuery("#output").val(outputs.html).attr('data-mode','html');
+	  jQuery(".preview-item.active-item").find(".preview-item-external").attr('href',outputs.detail);
 	});
 	
-			
+	
+	
+	
+	function updateOutputURLs() {
+	  var mode = jQuery("#output").attr("data-mode");
+	  jQuery("#output").val(outputs[mode]);
+	  jQuery("#copy").show();  
+	}	
 	
 	
 	/****************************
@@ -370,6 +411,8 @@
 	*****************************************/
 	
 	jQuery(document).on("click", ".preview-item-metadata", function(e) {
+	
+	   var selected = jQuery()
 	
 	   var  o = masterlist[current_id];
 	   var html = "";

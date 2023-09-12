@@ -30,12 +30,17 @@ body {
  
   
 #gallery { 
- display:flex;
  width: 100%;
- flex-wrap: wrap;
  overflow-y:scroll;
  max-height:500px;
 }
+
+#gallery ul { 
+ display:flex;
+ flex-wrap: wrap;
+ padding:0px;
+}
+
 
 .gallery-item { 
   border:solid 1px #EEE;
