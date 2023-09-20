@@ -77,12 +77,12 @@
 	  // i had orignally populate the output textarea with the full url when one clicked on the gallery item
 	  var full_size = service+"/full/full/0/default.jpg";
 
-	  outputs = { 
+	  outputs = {
 	    'manifest':manifest_url,
 	    'service': service,
 	    'detail':full_size,
 	    'full':full_size,
-	    'html':"<img src='"+full_size+"' data-manifest='https://data.artmuseum.princeton.edu/iiif/objects/23888'/>"
+	    'html':"<img alt='' src='"+full_size+"' data-manifest='https://data.artmuseum.princeton.edu/iiif/objects/23888'/>"
 	  }
 	  
 	  // update the urls that appear in the output textarea
@@ -186,7 +186,7 @@
 		
 		    manifest_url = jQuery("#url").val();
 		    
-		    var img_html = "<img src='"+crop_url+"' data-manifest='"+manifest_url+"'/>";
+		    var img_html = "<img alt='' src='"+crop_url+"' data-manifest='"+manifest_url+"'/>";
 		     
 		    
 		    // add info to the selections array
@@ -330,10 +330,13 @@
 	  // highlight this gallery item
 	  jQuery(".preview-item").removeClass('active-item');
 	  jQuery(this).addClass("active-item");
-	  
-	  var num = jQuery(this).attr('data-num');  
+	    
 	  var manifest_url = jQuery(this).attr('rel');
 	  var selection_index = jQuery(this).attr('data-selection');
+	  var service = jQuery(this).attr('data-service');
+	  
+	  jQuery(".gallery-item").removeClass('gallery-item-active');
+	  jQuery(".gallery-item[data-service='"+service+"']").addClass('gallery-item-active');
 
 	  outputs = { 
 	    'manifest':manifest_url,

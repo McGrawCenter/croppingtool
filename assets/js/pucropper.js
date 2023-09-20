@@ -252,7 +252,7 @@
     var para = jQuery("<ul></ul>");
 
     jQuery.each(images, function(i,v){ 
-      para.append("<li class='gallery-item' data-manifest='"+id+"' data-service='"+v.url+"' alt='image "+i+"'><img src='"+v.thumb+"'/></li>");
+      para.append("<li class='gallery-item' data-manifest='"+id+"' data-service='"+v.url+"' alt='image "+i+"'><img alt='' src='"+v.thumb+"'/></li>");
       //jQuery("#gallery ul").append();
     });
     jQuery("#gallery").append(para);
