@@ -186,10 +186,12 @@
 		
 		    manifest_url = jQuery("#url").val();
 		    
-		    var img_html = "<img alt='' src='"+crop_url+"' data-manifest='"+manifest_url+"'/>";
-		     
+		    var img_title = masterlist[manifest_url].label;
+		    var img_html = "<img alt='"+img_title+"' src='"+crop_url+"' data-manifest='"+manifest_url+"'/>";
+		    
 		    
 		    // add info to the selections array
+		    // creating an id would probably be good
 		    var selection_index = selections.push({"id":"", "manifest":manifest_url,"detail":crop_url,"html":img_html, "full":uncropped_url, "mode": "detail"})-1;
 		    
 		    // if any items in the tray are currently active, remove active class
@@ -231,7 +233,7 @@
 		    jQuery("#output").attr('data-mode','detail');
 		    	    
 		    updateOutputURLs();
-		    console.log(outputs);
+		    //console.log(outputs);
 		} 
 
 		drag = null;
