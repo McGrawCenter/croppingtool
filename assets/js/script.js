@@ -178,6 +178,8 @@
 		crop_url = outputs.service+"/"+p[0]+","+p[1]+","+p[2]+","+p[3]+"/"+overlayHeight+",/0/default.jpg";
 		uncropped_url = outputs.service+"/"+p[0]+","+p[1]+","+p[2]+","+p[3]+"/full/0/default.jpg"
 			
+		
+			
 		updateOutputURLs();
 	    },
 	    releaseHandler: function(event) {
@@ -185,9 +187,11 @@
 		if(selectionMode==true) { 
 		
 		    manifest_url = jQuery("#url").val();
+		   
+		    console.log(outputs);
 		    
 		    var img_title = masterlist[manifest_url].label;
-		    var img_html = "<img alt='"+img_title+"' src='"+crop_url+"' data-manifest='"+manifest_url+"'/>";
+		    var img_html = "<img alt='thumbnail image' src='"+crop_url+"' data-manifest='"+manifest_url+"'/>";
 		    
 		    
 		    // add info to the selections array
@@ -203,7 +207,7 @@
 		    var preview_item = "<div class='preview-item active-item' data-service='"+outputs.service+"' data-selection='"+selection_index+"'>\
 		    <a href='#' class='selectcrop'>"+img_html+"</a>\
 		    <span class='preview-item-tools'>\
-		     <a href='#' class='preview-item-metadata' rel='"+manifest_url+"'><img src='assets/images/info-circle-white.svg' height='15'/></a>\
+		     <!--<a href='#' class='preview-item-metadata' rel='"+manifest_url+"'><img src='assets/images/info-circle-white.svg' height='15'/></a>-->\
 		     <a href='"+crop_url+"' class='preview-item-external' target='_blank'><img src='assets/images/external-white.svg' height='15'/></a>\
 		     <a href='#' class='preview-item-close'><img src='assets/images/x-white.svg' height='15'/></a></span></div>";
 		    
@@ -417,9 +421,14 @@
 	
 	jQuery(document).on("click", ".preview-item-metadata", function(e) {
 	
-	   var selected = jQuery()
+	   //var selected = jQuery()
 	
 	   var  o = masterlist[current_id];
+	   // update outputs - BEN
+	   
+	   console.log(selections);
+   
+	   
 	   var html = "";
 	   html += "<p><label for='title'>Title</label><span id='title'>"+o.label+"</span></p>";
 	   html += "<p><label for='descr'>Description</label><span id='descr'>"+o.description+"</span></p>";
