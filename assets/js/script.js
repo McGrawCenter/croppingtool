@@ -7,6 +7,7 @@
   	// be displayed in the output window for whatever is currently selected
   	
   	var outputs = {'manifest':'', 'service':'','detail':'','full':'','html':''};
+  	
     	var overlay = false;
     	var selectionMode = false;	
     	var crop_url = "";
@@ -187,8 +188,7 @@
 		if(selectionMode==true) { 
 		
 		    manifest_url = jQuery("#url").val();
-		   
-		    console.log(outputs);
+		  
 		    
 		    var img_title = masterlist[manifest_url].label;
 		    var img_html = "<img alt='thumbnail image' src='"+crop_url+"' data-manifest='"+manifest_url+"'/>";
@@ -207,10 +207,10 @@
 		    var preview_item = "<div class='preview-item active-item' data-service='"+outputs.service+"' data-selection='"+selection_index+"'>\
 		    <a href='#' class='selectcrop'>"+img_html+"</a>\
 		    <span class='preview-item-tools'>\
-		     <!--<a href='#' class='preview-item-metadata' rel='"+manifest_url+"'><img src='assets/images/info-circle-white.svg' height='15'/></a>-->\
+		     <a href='#' class='preview-item-metadata' rel='"+manifest_url+"'><img src='assets/images/info-circle-white.svg' height='15'/></a>\
 		     <a href='"+crop_url+"' class='preview-item-external' target='_blank'><img src='assets/images/external-white.svg' height='15'/></a>\
 		     <a href='#' class='preview-item-close'><img src='assets/images/x-white.svg' height='15'/></a></span></div>";
-		    
+
 		    jQuery("#preview").find('.preview-tray').prepend(preview_item);
 		    
 		    jQuery("#preview").addClass('shown').show();
@@ -346,6 +346,7 @@
 
 	  outputs = { 
 	    'manifest':manifest_url,
+	    'service':service,
 	    'detail':selections[selection_index]['detail'],
 	    'full':selections[selection_index]['full'],
 	    'html':selections[selection_index]['html']
@@ -421,14 +422,11 @@
 	
 	jQuery(document).on("click", ".preview-item-metadata", function(e) {
 	
-	   //var selected = jQuery()
+	   // update the urls that go in the 'copy' textarea
+	   updateOutputURLs();
 	
 	   var  o = masterlist[current_id];
-	   // update outputs - BEN
-	   
-	   console.log(selections);
-   
-	   
+
 	   var html = "";
 	   html += "<p><label for='title'>Title</label><span id='title'>"+o.label+"</span></p>";
 	   html += "<p><label for='descr'>Description</label><span id='descr'>"+o.description+"</span></p>";

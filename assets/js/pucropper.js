@@ -248,7 +248,7 @@
        jQuery("#gallery").empty();
        submitted = 0;
     }
-    console.log(masterlist);
+    //console.log(masterlist);
     var para = jQuery("<ul></ul>");
 
     jQuery.each(images, function(i,v){ 
