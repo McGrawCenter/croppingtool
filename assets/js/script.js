@@ -188,9 +188,10 @@
 		if(selectionMode==true) { 
 		
 		    manifest_url = jQuery("#url").val();
-		  
 		    console.log(manifest_url);
-		    var img_title = masterlist[manifest_url].label;
+		    console.log(masterlist);
+		    //var img_title = masterlist[manifest_url].label;
+		    var img_title = masterlist[current_id].label
 		    var img_html = "<img alt='thumbnail image' src='"+crop_url+"' data-manifest='"+manifest_url+"'/>";
 		    
 		    
