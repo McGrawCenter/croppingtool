@@ -192,7 +192,10 @@
         for (const item of items) {
             var label = Object.values(item.label)[0][0];
             //var thumb = getCanvasThumbnail(item, 150,150);
-            var thumb = item.thumbnail[0]['id'];
+            if(!item.thumbnail) {  
+               var thumb = item.items[0].items[0].body.service[0]['@id']+"/full/150,/0/default.jpg";
+            }
+            else { var thumb = item.thumbnail[0]['id']; }
             var url = item.items[0].items[0].body.service[0]['@id'];
             var r = {}
             r.label = label;
