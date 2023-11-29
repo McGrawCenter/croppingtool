@@ -49,6 +49,7 @@
 	    prefixUrl: "assets/js/openseadragon/images/",
 	    tileSources:[],
 	    showFullPageControl:false,
+	    showRotationControl: true,
 	    minZoomLevel: 0.1    
 	});
 	

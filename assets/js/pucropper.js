@@ -179,27 +179,73 @@
       */
       
       // thumbnail
-      if(manifest.thumbnail && typeof manifest.thumbnail === 'object') {  var thumbnail = manifest.thumbnail[0].id; }      
-      else if(manifest.thumbnail && typeof manifest.thumbnail === 'array') { var thumbnail = manifest.thumbnail['id']; }
-      else if(manifest.thumbnail && typeof manifest.thumbnail === "string") { var thumbnail = manifest.thumbnail; }  
+      
+      
+      if(manifest.thumbnail) {
+        console.log("manifest.thumbnail exists");
+	switch(typeof manifest.thumbnail) {
+	  case 'object':
+	    var thumbnail = manifest.thumbnail.id;
+	    break;
+	  case 'array':
+	    var thumbnail = manifest.thumbnail['id'];
+	    break;
+	  default: //string
+	    var thumbnail = manifest.thumbnail;
+	} 
+      }
       else {
-        var firstcanvas = manifest.items[0];
-        var thumbnail = getCanvasThumbnail(firstcanvas, 150,150);
-      }      
+        var thumbnail = manifest.items[0].items[0].items[0].body.service[0]['@id']+"/full/!150,150/0/default.jpg";
+      }
+     
+    
       
       if(manifest.items) {
         var items = manifest.items;
         for (const item of items) {
-            var label = Object.values(item.label)[0][0];
-            //var thumb = getCanvasThumbnail(item, 150,150);
-            if(!item.thumbnail) {  
-               var thumb = item.items[0].items[0].body.service[0]['@id']+"/full/150,/0/default.jpg";
-            }
-            else { var thumb = item.thumbnail[0]['id']; }
-            var url = item.items[0].items[0].body.service[0]['@id'];
+        
+	      // label
+	      if(item.label) {
+		//console.log("item label exists");
+		switch(typeof item.label) {
+		  case 'object':
+		    var label = item.label.en[0];
+		    break;
+		  case 'array':
+		    var label = item.label[0];
+		    break;
+		  default: //string
+		    var label = item.label;
+		} 
+	      }
+	      else {
+		var label = "";
+	      }	    
+        
+	      // thumb
+	      if(item.thumbnail) {
+		switch(typeof item.thumbnail) {
+		  case 'object':
+		    var thumb = item.thumbnail.id;
+		    break;
+		  case 'array':
+		    var thumb = item.thumbnail[0];
+		    break;
+		  default: //string
+		    var thumb = item.thumbnail;
+		} 
+	      }
+	      else {
+		var thumb = item.items[0].items[0].body.service[0]['@id']+"/full/!150,150/0/default.jpg";
+	      }      
+
+
+            
+            var url = item.items[0].items[0].body.service.id;
             var r = {}
             r.label = label;
             r.thumb = thumb;
+            r.label = label;
             r.url = url;
             o.images.push(r);
         }
@@ -255,7 +301,7 @@
     var para = jQuery("<ul></ul>");
 
     jQuery.each(images, function(i,v){ 
-      para.append("<li class='gallery-item' data-manifest='"+id+"' data-service='"+v.url+"' alt='image "+i+"'><img alt='"+v.label+"' src='"+v.thumb+"'/></li>");
+      para.append("<li class='gallery-item' data-manifest='"+id+"' data-service='"+v.url+"' alt='image "+i+"'><img alt='"+v.label+"' src='"+v.thumb+"'/><div class='gallery-item-label'>"+v.label+"</div></li>");
       //jQuery("#gallery ul").append();
     });
     jQuery("#gallery").append(para);

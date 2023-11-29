@@ -53,13 +53,26 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: center;
+  position:relative;
 }
 
-.gallery-item img { width:100%; }
+.gallery-item img { 
+  max-height: 150px;
+  max-width: 150px;
+ }
 .gallery-item-active { border:2px solid red; }
 .active-item { border-bottom:2px solid red; }
 
-
+.gallery-item-label { 
+  position: absolute;
+  bottom: 0px;
+  background: #666;
+  left: 0px;
+  margin: 0 0 3px 3px;
+  font-size: 0.8em;
+  padding: 0.2em 0.3em;
+  color: white;
+ }
 
 
 
