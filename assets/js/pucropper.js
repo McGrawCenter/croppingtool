@@ -157,32 +157,9 @@
       o.description = getFirstValue(manifest.description);
       o.metadata = parseMetadata(manifest.metadata); 
       
-  
-  /*
-      if(manifest.label && typeof manifest.label === "object") { 
-         var label = Object.values(manifest.label)[0][0];
-       }    
-      else if(manifest.label && Array.isArray(manifest.label)) { 
-
-         var label = manifest.label[0][0];
-       }
-      else if(manifest.label && typeof manifest.label === "string") { 
-         var label = manifest.label;
-      }
-      else { 
-      
-      }
-      // metadata
-      parseMetadata(manifest.metadata);
-      
-      //console.log(label);
-      */
       
       // thumbnail
-      
-      
       if(manifest.thumbnail) {
-        console.log("manifest.thumbnail exists");
 	switch(typeof manifest.thumbnail) {
 	  case 'object':
 	    var thumbnail = manifest.thumbnail.id;
@@ -203,10 +180,9 @@
       if(manifest.items) {
         var items = manifest.items;
         for (const item of items) {
-        
+
 	      // label
 	      if(item.label) {
-		//console.log("item label exists");
 		switch(typeof item.label) {
 		  case 'object':
 		    // get the first value
@@ -221,33 +197,59 @@
 	      }
 	      else {
 		var label = "";
-	      }	    
-        
+	      }	        
+	    // end label --------------------------
+	    
+	    // service
+            var service = item.items[0].items[0].body.service;
+
+            if(typeof service === 'array') {
+              console.log('array');
+              console.log(service);
+            }
+            else if(typeof service === 'object') {
+              console.log('object');
+              if(service[0]) {
+                service = service[0]['@id'];
+              }
+              else {
+                service = service.id;
+              }
+            } 
+	     // end service ------------------------------
+	     
+	     
+	     
 	      // thumb
-	      if(item.thumbnail) {
+	     if(item.thumbnail) {
 		switch(typeof item.thumbnail) {
 		  case 'object':
-		    var thumb = item.thumbnail.id;
+		    console.log('object');
+		    if(item.thumbnail[0]) { var thumb = item.thumbnail[0].id }
+		    else { var thumb = item.thumbnail.id; }
 		    break;
 		  case 'array':
+		    console.log('array');
 		    var thumb = item.thumbnail[0];
 		    break;
 		  default: //string
 		    var thumb = item.thumbnail;
 		} 
-	      }
-	      else {
-		var thumb = item.items[0].items[0].body.service[0]['@id']+"/full/!150,150/0/default.jpg";
-	      }      
+	     }
+	     else {
+		var thumb = service+"/full/!150,150/0/default.jpg";
+	     }              
+            // end thumb ------------------------------
 
-
+            //var url = item.items[0].items[0].body.service[0]['@id'];
+            var url = service;
             
-            var url = item.items[0].items[0].body.service.id;
             var r = {}
             r.label = label;
             r.thumb = thumb;
-            r.label = label;
+            r.label = label.replace(/"/g,'');
             r.url = url;
+            console.log(r);
             o.images.push(r);
         }
       } 

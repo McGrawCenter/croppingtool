@@ -64,14 +64,12 @@ body {
 .active-item { border-bottom:2px solid red; }
 
 .gallery-item-label { 
-  position: absolute;
   bottom: 0px;
-  background: #666;
   left: 0px;
-  margin: 0 0 3px 3px;
-  font-size: 0.8em;
+  font-size: 0.6em;
   padding: 0.2em 0.3em;
-  color: white;
+  color: black;
+  padding-top:7px;
  }
 
 
