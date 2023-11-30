@@ -209,7 +209,8 @@
 		//console.log("item label exists");
 		switch(typeof item.label) {
 		  case 'object':
-		    var label = item.label.en[0];
+		    // get the first value
+		    var label = Object.values(item.label)[0][0];
 		    break;
 		  case 'array':
 		    var label = item.label[0];
