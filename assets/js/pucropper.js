@@ -204,13 +204,13 @@
             var service = item.items[0].items[0].body.service;
 
             if(typeof service === 'array') {
-              console.log('array');
-              console.log(service);
+              //console.log('array');
+              //console.log(service);
             }
             else if(typeof service === 'object') {
-              console.log('object');
+              //console.log('object');
               if(service[0]) {
-                service = service[0]['@id'];
+                service = service[0]['id'];
               }
               else {
                 service = service.id;
@@ -224,12 +224,12 @@
 	     if(item.thumbnail) {
 		switch(typeof item.thumbnail) {
 		  case 'object':
-		    console.log('object');
+		    //console.log('object');
 		    if(item.thumbnail[0]) { var thumb = item.thumbnail[0].id }
 		    else { var thumb = item.thumbnail.id; }
 		    break;
 		  case 'array':
-		    console.log('array');
+		    //console.log('array');
 		    var thumb = item.thumbnail[0];
 		    break;
 		  default: //string
