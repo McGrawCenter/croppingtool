@@ -9,7 +9,9 @@
   //  and we don't want to empty the gallery after each one. 
   //  But if someone added a different manifest, we want to empty it)
   var submitted = 0;
-  
+  // some manifests use 'max' for size rather than full (internet archive)
+  // we need to detect it to generate our 'full' version
+  var max_or_full = "full";
   
 
   /************************************
@@ -84,9 +86,9 @@
   function parseSingleImage(url) {
   
       var s = url.split("/").slice(0,-4);
-      console.log(s);
+      //console.log(s);
       var id = s.join("/");
-      console.log(id);
+      //console.log(id);
       // initialize an object that will contain info
       var o = {'label':'', 'metadata':[], images:[]}
       o.label = "No title";
@@ -179,6 +181,11 @@
       
       if(manifest.items) {
         var items = manifest.items;
+        
+        // check if manifest uses full or max for the size in image urls
+        // checking the id of the first 'item'
+        if(items[0].items[0].items[0].body.id.includes("/max/")) { max_or_full = "max"; }
+        
         for (const item of items) {
 
 	      // label
@@ -249,7 +256,6 @@
             r.thumb = thumb;
             r.label = label.replace(/"/g,'');
             r.url = url;
-            console.log(r);
             o.images.push(r);
         }
       } 

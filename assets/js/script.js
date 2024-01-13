@@ -14,6 +14,7 @@
   	var current_image = "";
   	var manifest_url = "";
   	
+  	
        /****************
        * masterlist contains records of each manifest that is added to the tool
        * with title, descr, metadata, and images
@@ -77,7 +78,10 @@
 	  
 	  
 	  // i had orignally populate the output textarea with the full url when one clicked on the gallery item
-	  var full_size = service+"/full/full/0/default.jpg";
+	  
+	  
+	  if(max_or_full == 'max') { var full_size = service+"/full/max/0/default.jpg"; }
+	  else { var full_size = service+"/full/full/0/default.jpg"; }
 
 	  outputs = {
 	    'manifest':manifest_url,
