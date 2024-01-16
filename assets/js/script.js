@@ -13,6 +13,7 @@
     	var crop_url = "";
   	var current_image = "";
   	var manifest_url = "";
+  	var rotation = 0;
   	
   	
        /****************
@@ -55,7 +56,9 @@
 	});
 	
 	
-
+	viewer.addHandler('rotate', function(){
+	  rotation = viewer.viewport.getRotation();
+	});
 	
 	
 	// select a gallery item
@@ -181,8 +184,8 @@
 	      		      
 		viewer.updateOverlay(drag.overlayElement, location);
 		
-		crop_url = outputs.service+"/"+p[0]+","+p[1]+","+p[2]+","+p[3]+"/"+overlayHeight+",/0/default.jpg";
-		uncropped_url = outputs.service+"/"+p[0]+","+p[1]+","+p[2]+","+p[3]+"/full/0/default.jpg"
+		crop_url = outputs.service+"/"+p[0]+","+p[1]+","+p[2]+","+p[3]+"/"+overlayHeight+",/"+rotation+"/default.jpg";
+		uncropped_url = outputs.service+"/"+p[0]+","+p[1]+","+p[2]+","+p[3]+"/full/"+rotation+"/default.jpg"
 			
 		
 			
@@ -195,6 +198,7 @@
 		    manifest_url = jQuery("#url").val();
 		    console.log(manifest_url);
 		    console.log(masterlist);
+		    console.log(rotation);
 		    //var img_title = masterlist[manifest_url].label;
 		    var img_title = masterlist[current_id].label
 		    var img_html = "<img alt='thumbnail image' src='"+crop_url+"' data-manifest='"+manifest_url+"'/>";
