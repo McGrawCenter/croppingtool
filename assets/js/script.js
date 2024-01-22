@@ -185,7 +185,11 @@
 		viewer.updateOverlay(drag.overlayElement, location);
 		
 		crop_url = outputs.service+"/"+p[0]+","+p[1]+","+p[2]+","+p[3]+"/"+overlayHeight+",/"+rotation+"/default.jpg";
-		uncropped_url = outputs.service+"/"+p[0]+","+p[1]+","+p[2]+","+p[3]+"/full/"+rotation+"/default.jpg"
+		
+		// ben here
+	  if(max_or_full == 'max') { uncropped_url = outputs.service+"/"+p[0]+","+p[1]+","+p[2]+","+p[3]+"/max/"+rotation+"/default.jpg"; }
+	  else { uncropped_url = outputs.service+"/"+p[0]+","+p[1]+","+p[2]+","+p[3]+"/full/"+rotation+"/default.jpg" }		
+		
 			
 		
 			
