@@ -217,7 +217,9 @@
             else if(typeof service === 'object') {
               //console.log('object');
               if(service[0]) {
-                service = service[0]['id'];
+                //if(service[0]['id'].length > 0) { service = service[0]['id']; }
+                //else { service = service[0]['@id']; }
+                service = service[0]['@id'];
               }
               else {
                 service = service.id;
@@ -301,6 +303,7 @@
 
   
   function buildGallery(id) {
+  console.log(masterlist);
     var images = masterlist[id].images;
     if(submitted == 1) {
        jQuery("#gallery").empty();

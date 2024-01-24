@@ -58,13 +58,18 @@
 	
 	viewer.addHandler('rotate', function(){
 	  rotation = viewer.viewport.getRotation();
+	  if(rotation < 0) { rotation = 360 - rotation; }
 	});
 	
 	
-	// select a gallery item
+	/******************
+	* select a gallery item
+	***********************************************************/
+	
 	jQuery(document).on("click",".gallery-item",function(e){
 	
 	  var manifest_url = jQuery(this).attr('data-manifest');
+	  
 	  service = jQuery(this).attr('data-service');
 	
 	  // highlight this gallery item
@@ -82,7 +87,7 @@
 	  
 	  // i had orignally populate the output textarea with the full url when one clicked on the gallery item
 	  
-	  
+	  console.log(max_or_full);
 	  if(max_or_full == 'max') { var full_size = service+"/full/max/0/default.jpg"; }
 	  else { var full_size = service+"/full/full/0/default.jpg"; }
 
@@ -93,6 +98,8 @@
 	    'full':full_size,
 	    'html':"<img alt='' src='"+full_size+"' data-manifest='https://data.artmuseum.princeton.edu/iiif/objects/23888'/>"
 	  }
+	  
+	  console.log(outputs);
 	  
 	  // update the urls that appear in the output textarea
 	  updateOutputURLs();
