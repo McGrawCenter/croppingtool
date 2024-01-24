@@ -58,7 +58,9 @@
 	
 	viewer.addHandler('rotate', function(){
 	  rotation = viewer.viewport.getRotation();
-	  if(rotation < 0) { rotation = 360 - rotation; }
+	  console.log(rotation);
+	  if(rotation < 0) { rotation = 360 + rotation; }
+	  console.log(rotation);
 	});
 	
 	
@@ -71,6 +73,8 @@
 	  var manifest_url = jQuery(this).attr('data-manifest');
 	  
 	  service = jQuery(this).attr('data-service');
+	  
+	  rotation = 0;
 	
 	  // highlight this gallery item
 	  jQuery(".gallery-item").removeClass('gallery-item-active');
