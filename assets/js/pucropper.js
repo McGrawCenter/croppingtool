@@ -217,10 +217,10 @@
             else if(typeof service === 'object') {
               //console.log('object');
               if(service[0]) {
-                //if(service[0]['id'].length > 0) { service = service[0]['id']; }
-                //else { service = service[0]['@id']; }
-                
-                service = service[0]['id'];
+		 // sometimes v3 service ids have an @ sign, sometimes not 
+		 if(service[0]['id'] == null) { service = service[0]['@id'] }
+		 else { service = service[0]['id'] }
+                //service = service[0]['id'];
               }
               else {
                 service = service.id;
