@@ -219,7 +219,8 @@
               if(service[0]) {
                 //if(service[0]['id'].length > 0) { service = service[0]['id']; }
                 //else { service = service[0]['@id']; }
-                service = service[0]['@id'];
+                
+                service = service[0]['id'];
               }
               else {
                 service = service.id;
@@ -251,6 +252,7 @@
             // end thumb ------------------------------
 
             //var url = item.items[0].items[0].body.service[0]['@id'];
+            
             var url = service;
             
             var r = {}
@@ -303,7 +305,7 @@
 
   
   function buildGallery(id) {
-  console.log(masterlist);
+
     var images = masterlist[id].images;
     if(submitted == 1) {
        jQuery("#gallery").empty();
