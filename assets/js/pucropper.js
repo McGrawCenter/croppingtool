@@ -18,8 +18,18 @@
   * 
   *************************************/
   function load(manifest_uri) {
-  
+    
+
     jQuery("#gallery").empty();
+    
+    // if this is an Internet Archive URL
+    // convert it to a manifest
+    if(manifest_uri.indexOf("archive.org") > 0) {
+      manifest_uri = internetArchive2Manifest(manifest_uri);
+      
+    }    
+    console.log(manifest_uri);
+    
     //console.log(manifest_uri.search(/\/([0-9]{1,3})\/(color|gray|bitonal|default)\.(png|jpg)/));
     if(manifest_uri.search(/\/([0-9]{1,3})\/(color|gray|bitonal|default)\.(png|jpg)/) > 0) { 
         parseSingleImage(manifest_uri)
@@ -71,6 +81,21 @@
 	}  // end if/else
 	
   }
+
+
+  /************************************
+  * 
+  *************************************/
+  function internetArchive2Manifest (url) {
+     var parts = url.split("/");
+     for(var x=0;x<=parts.length;x++) { 
+       if(parts[x] == 'details') { 
+         var ia_id = parts[x+1];
+         return "https://iiif.archivelab.org/iiif/"+ia_id+"/manifest.json";
+       }
+     }     
+  }
+
 
 
   /************************************
