@@ -226,6 +226,13 @@
 		    // if any items in the tray are currently active, remove active class
 		    jQuery(".preview-item.active-item").removeClass('active-item'); 		    
 
+
+
+
+
+
+
+
 		    //construct html of thumbnail in bottom tray
 
 		    //var preview_item = "<div class='preview-item active-item' data-num='"+selections.length+"' data-selection='"+selection_index+"'>\
