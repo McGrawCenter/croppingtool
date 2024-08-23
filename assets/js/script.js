@@ -3,14 +3,16 @@
   
 
   	var current_id = "";
+  	
   	// outputs is an object that holds the current output urls that will
   	// be displayed in the output window for whatever is currently selected
-  	
   	var outputs = {'manifest':'', 'service':'','detail':'','full':'','html':''};
+
   	
     	var overlay = false;
     	var selectionMode = false;	
     	var crop_url = "";
+    	var region = [];
   	var current_image = "";
   	var manifest_url = "";
   	var rotation = 0;
@@ -20,7 +22,7 @@
        * masterlist contains records of each manifest that is added to the tool
        * with title, descr, metadata, and images
        ***********************************/
-  	var masterlist = {};  	
+  	var masterlist = {};	
   	
   	/****************
   	* selections is a list of the crops
@@ -70,11 +72,14 @@
 	
 	jQuery(document).on("click",".gallery-item",function(e){
 	
+	  
 	  var manifest_url = jQuery(this).attr('data-manifest');
+	  var canvas = jQuery(this).attr('data-canvas');
 	  
 	  service = jQuery(this).attr('data-service');
 	  
-	  rotation = 0;
+	  //current = {'service':service, 'manifest': manifest_url, 'label': '', 'rotation': 0}
+
 	
 	  // highlight this gallery item
 	  jQuery(".gallery-item").removeClass('gallery-item-active');
@@ -90,17 +95,16 @@
 	  
 	  
 	  // i had orignally populate the output textarea with the full url when one clicked on the gallery item
-	  
-	  console.log(max_or_full);
 	  if(max_or_full == 'max') { var full_size = service+"/full/max/0/default.jpg"; }
 	  else { var full_size = service+"/full/full/0/default.jpg"; }
 
 	  outputs = {
 	    'manifest':manifest_url,
+	    'canvas': canvas,
 	    'service': service,
 	    'detail':full_size,
 	    'full':full_size,
-	    'html':"<img alt='' src='"+full_size+"' data-manifest='https://data.artmuseum.princeton.edu/iiif/objects/23888'/>"
+	    'html':"<img alt='' src='"+full_size+"' data-manifest='"+manifest_url+"'/>"
 	  }
 	  
 	  console.log(outputs);
@@ -184,22 +188,26 @@
 
 		var w = viewer.tileSources[0].width;
       
-		var p = [
+		region = [
 		    Math.floor(location.x * w),
 		    Math.floor(location.y * w),
 		    Math.floor(location.width * w),
 		    Math.floor(location.height * w)
 		]
-	      	
-	      	jQuery.each(p,function(i,v){ if(v < 0) { p[i] = 0; } });
+		
+	      	// if the box goes outside the boundaries of the image
+	      	jQuery.each(region,function(i,v){ if(v < 0) { region[i] = 0; } });
 	      		      
 		viewer.updateOverlay(drag.overlayElement, location);
 		
-		crop_url = outputs.service+"/"+p[0]+","+p[1]+","+p[2]+","+p[3]+"/"+overlayHeight+",/"+rotation+"/default.jpg";
+		crop_url = outputs.service+"/"+region[0]+","+region[1]+","+region[2]+","+region[3]+"/"+overlayHeight+",/"+rotation+"/default.jpg";
 		
-		// ben here
-	  if(max_or_full == 'max') { uncropped_url = outputs.service+"/"+p[0]+","+p[1]+","+p[2]+","+p[3]+"/max/"+rotation+"/default.jpg"; }
-	  else { uncropped_url = outputs.service+"/"+p[0]+","+p[1]+","+p[2]+","+p[3]+"/full/"+rotation+"/default.jpg" }		
+	        if(max_or_full == 'max') { 
+	          uncropped_url = outputs.service+"/"+region[0]+","+region[1]+","+region[2]+","+region[3]+"/max/"+rotation+"/default.jpg";
+	        }
+	        else { 
+	          uncropped_url = outputs.service+"/"+region[0]+","+region[1]+","+region[2]+","+region[3]+"/full/"+rotation+"/default.jpg";
+	        }		
 		
 			
 		
@@ -211,35 +219,26 @@
 		if(selectionMode==true) { 
 		
 		    manifest_url = jQuery("#url").val();
-		    console.log(manifest_url);
-		    console.log(masterlist);
-		    console.log(rotation);
-		    //var img_title = masterlist[manifest_url].label;
-		    var img_title = masterlist[current_id].label
+
 		    var img_html = "<img alt='thumbnail image' src='"+crop_url+"' data-manifest='"+manifest_url+"'/>";
-		    
+		    console.log(outputs);
 		    
 		    // add info to the selections array
 		    // creating an id would probably be good
 		    var selection_index = selections.push({"id":"", "manifest":manifest_url,"detail":crop_url,"html":img_html, "full":uncropped_url, "mode": "detail"})-1;
 		    
+		    //console.log(selections);
+		    
 		    // if any items in the tray are currently active, remove active class
 		    jQuery(".preview-item.active-item").removeClass('active-item'); 		    
 
 
-
-
-
-
-
-
 		    //construct html of thumbnail in bottom tray
 
-		    //var preview_item = "<div class='preview-item active-item' data-num='"+selections.length+"' data-selection='"+selection_index+"'>\
-		    var preview_item = "<div class='preview-item active-item' data-service='"+outputs.service+"' data-selection='"+selection_index+"'>\
+		    var preview_item = "<div class='preview-item active-item' data-service='"+outputs.service+"' data-canvas='"+outputs.canvas+"' data-manifest='"+manifest_url+"' data-selection='"+selection_index+"'>\
 		    <a href='#' class='selectcrop'>"+img_html+"</a>\
 		    <span class='preview-item-tools'>\
-		     <a href='#' class='preview-item-metadata' rel='"+manifest_url+"'><img src='assets/images/info-circle-white.svg' height='15'/></a>\
+		     <a href='#' class='preview-item-metadata'><img src='assets/images/info-circle-white.svg' height='15'/></a>\
 		     <a href='"+crop_url+"' class='preview-item-external' target='_blank'><img src='assets/images/external-white.svg' height='15'/></a>\
 		     <a href='#' class='preview-item-close'><img src='assets/images/x-white.svg' height='15'/></a></span></div>";
 
@@ -369,7 +368,8 @@
 	  jQuery(".preview-item").removeClass('active-item');
 	  jQuery(this).addClass("active-item");
 	    
-	  var manifest_url = jQuery(this).attr('rel');
+	  var manifest_url = jQuery(this).attr('data-manifest');
+
 	  var selection_index = jQuery(this).attr('data-selection');
 	  var service = jQuery(this).attr('data-service');
 	  
@@ -386,21 +386,19 @@
 	  
 	  //re-populate the url text field with the manifest url for this detail
 	  var previous_manifest_url = jQuery("#url").val();
-	  var selection_index = jQuery(this).attr('data-selection');
-	  var current_manifest_url = selections[selection_index].manifest;
-	  jQuery("#url").val(current_manifest_url);
+	  
+	  //var selection_index = jQuery(this).attr('data-selection');
+	  //var current_manifest_url = selections[selection_index].manifest;
+	  jQuery("#url").val(manifest_url);
 	  // if we are changing to a different manifest, reload the gallery of thumbs
-	  if(previous_manifest_url != current_manifest_url) {
-	      load(current_manifest_url);
+	  if(previous_manifest_url != manifest_url) {
+	      load(manifest_url);
 	  }
 	  
 	  //populate the output textarea with whatever mode is currently selected
 	  //var mode = jQuery("#output").attr('data-mode');
 	  updateOutputURLs();
 	  
-	  //jQuery("#output").val(selections[selection_index][mode]);
-	  
-	  //jQuery("#output").attr('data-current',selection_index);
 	});
 	
 
@@ -454,18 +452,34 @@
 	
 	jQuery(document).on("click", ".preview-item-metadata", function(e) {
 	
+	  var manifest = jQuery(this).parent().parent().attr('data-manifest');
+	  var canvas = jQuery(this).parent().parent().attr('data-canvas');
+	  
+	  console.log("Manifest: "+manifest);
+	  console.log("Canvas: "+canvas);
+	  console.log("Region: "+region.join(','));
+	  
+	  
 	   // update the urls that go in the 'copy' textarea
 	   updateOutputURLs();
-	
-	   var  o = masterlist[current_id];
+
+	   var  o = manifests[manifest];
 
 	   var html = "";
-	   html += "<p><label for='title'>Title</label><span id='title'>"+o.label+"</span></p>";
-	   html += "<p><label for='descr'>Description</label><span id='descr'>"+o.description+"</span></p>";
+	   html += "<p><label for='title'>Title:</label> <span id='title'>"+o.label+"</span></p>";
+	   html += "<p><label for='descr'>Description:</label> <span id='descr'>"+o.description+"</span></p>";
 	   
 	   jQuery.each(o.metadata, function(i,v) {
-	     html += "<p><label for='"+v.label+"'>"+v.label+"</label><span id='"+v.label+"'>"+v.value+"</span></p>";
+	     html += "<p><label for='"+v.label+"'>"+v.label+":</label> <span id='"+v.label+"'>"+v.value+"</span></p>";
 	   });
+	   html += "<p><a href='"+manifest+"' target='_blank'><img src='assets/images/iiif.svg' class='icon'/></a></p>";
+	   
+	   html += "<p><strong>Manifest</strong>: "+manifest+"</p>";
+	   html += "<p><strong>Canvas</strong>: "+canvas+"</p>";
+	   html += "<p><strong>Region</strong>: "+region+"</p>"
+	   
+	   
+	   
 	   jQuery('#modal_content').html(html);
 	   jQuery('#modal').modal();
 

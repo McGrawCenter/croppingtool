@@ -71,7 +71,10 @@ body {
   color: black;
   padding-top:7px;
  }
-
+.gallery-manifest-label {
+  font-size: 0.8em;
+  margin-bottom: 0px;
+}
 
 
 #viewer { 
@@ -224,6 +227,7 @@ input[type='text'], textarea {
   text-decoration:none;
 }
 
+.icon { height:32px; }
 
 /**************** modal ******************/
 
