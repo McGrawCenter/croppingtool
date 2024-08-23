@@ -455,9 +455,9 @@
 	  var manifest = jQuery(this).parent().parent().attr('data-manifest');
 	  var canvas = jQuery(this).parent().parent().attr('data-canvas');
 	  
-	  console.log("Manifest: "+manifest);
-	  console.log("Canvas: "+canvas);
-	  console.log("Region: "+region.join(','));
+	  //console.log("Manifest: "+manifest);
+	  //console.log("Canvas: "+canvas);
+	  //console.log("Region: "+region.join(','));
 	  
 	  
 	   // update the urls that go in the 'copy' textarea
@@ -476,7 +476,7 @@
 	   
 	   html += "<p><strong>Manifest</strong>: "+manifest+"</p>";
 	   html += "<p><strong>Canvas</strong>: "+canvas+"</p>";
-	   html += "<p><strong>Region</strong>: "+region+"</p>"
+	   html += "<p><strong>Region</strong>: "+region.join(',')+"</p>";
 	   
 	   
 	   
