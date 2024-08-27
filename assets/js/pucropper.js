@@ -107,21 +107,16 @@
   * 
   *************************************/
   function parseSingleImage(url) {
-  
       var s = url.split("/").slice(0,-4);
       //console.log(s);
       var id = s.join("/");
       //console.log(id);
       // initialize an object that will contain info
-      var o = {'label':'', 'metadata':[], images:[]}
+      var o = {'label':'', 'metadata':[], 'images':[] }
       o.label = "No title";
-      o.description = "No description";
-      var r = {}
-      r.label = "";
-      r.thumb = url;
-      r.url = id;
-      o.images.push(r);      
-      //masterlist[id] = o;
+      var i = {'manifest':'','canvas':'','service':id,'label':''}
+      images.push(i);
+      manifests[id] = o;
       current_id = id;
       buildGallery(id);
   }
