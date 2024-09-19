@@ -26,10 +26,9 @@
     // UCLA has a stupid 'ark:' in their urls that need to be encoded
     url = url.replace(/ark:\/(.*?)\//,function(r,a){ return "ark%3A%2F"+a+"%2F"});
 
-    
     // if this is an Internet Archive URL
     // convert it to a manifest
-    if(url.indexOf("archive.org") > 0) { url = internetArchive2Manifest(urlurl);   }    
+    if(url.indexOf("archive.org") > 0 && url.indexOf("details") > 0) { url = internetArchive2Manifest(url);   }    
 
 
     // if this is a IIIF image url, parse it
@@ -48,12 +47,14 @@
 			        metadata.push({'label':meta_label, 'value': meta_value });
 			        //console.log(meta_label+": "+meta_value);
 			      });
+			      
 			      var o = {'label':label,'metadata':metadata}
 			      //console.log(o);
 			      manifests[url] = o;
 
 			      
 			      var items = vault.get(manifest.items);
+			      console.log(items);
 			      var type = manifest.type;
 			      
 			      switch(type){
@@ -72,8 +73,14 @@
 			            var i = vault.get(it.items[0]);
 			            var j = vault.get(i.items[0]);
 			            var k = vault.get(j.body[0]);
+
 			            var service = k.service[0]['@id'];
+			            
+			            if(!service) {
+			              var service = k.service[0]['id'];
+			            }
 			            var x = {'service':service, 'manifest': url, 'canvas': canvas, 'label': label}
+			            console.log(x);
 			            images.push(x);
 			            
 			          });
