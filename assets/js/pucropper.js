@@ -23,7 +23,7 @@
     //jQuery("#gallery").empty();
     images = [];
 
-    // UCLA has a stupid 'ark:' in their urls that need to be encoded
+    // UCLA has an 'ark:' in their urls that need to be encoded
     url = url.replace(/ark:\/(.*?)\//,function(r,a){ return "ark%3A%2F"+a+"%2F"});
 
     // if this is an Internet Archive URL
