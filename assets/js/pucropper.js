@@ -45,16 +45,14 @@
 			        var meta_label = getFirstValue(meta.label);
 			        var meta_value = getFirstValue(meta.value);
 			        metadata.push({'label':meta_label, 'value': meta_value });
-			        //console.log(meta_label+": "+meta_value);
 			      });
 			      
 			      var o = {'label':label,'metadata':metadata}
-			      //console.log(o);
 			      manifests[url] = o;
 
 			      
 			      var items = vault.get(manifest.items);
-			      console.log(items);
+
 			      var type = manifest.type;
 			      
 			      switch(type){
@@ -66,24 +64,33 @@
 			        break;
 			        
 			        case 'Manifest':
+
 			          var items = vault.get(items);
-			          items.forEach(function(it){
+
+			          items.forEach((it) => {
 			            var canvas = it.id;
 			            var label = getFirstValue(it.label);
-			            var i = vault.get(it.items[0]);
-			            var j = vault.get(i.items[0]);
-			            var k = vault.get(j.body[0]);
-
-			            var service = k.service[0]['@id'];
-			            
-			            if(!service) {
-			              var service = k.service[0]['id'];
+			            var service = "error";
+			            if(it.items[0]) {
+			              var i = vault.get(it.items[0]);
+			              if(i.items[0]) {
+			                var j = vault.get(i.items[0]);
+			                if(j.body[0]) {
+			                  var k = vault.get(j.body[0]);
+			                  if(k.service[0]) {
+			                     service = k.service[0]['@id'];
+			                     if(!service) {
+			                         service = k.service[0]['id'];
+			                     }
+			                  }
+			                }
+			              }
 			            }
 			            var x = {'service':service, 'manifest': url, 'canvas': canvas, 'label': label}
-			            console.log(x);
 			            images.push(x);
-			            
+
 			          });
+
 				  buildGallery(url);
 			        break;
 			      
@@ -115,9 +122,7 @@
   *************************************/
   function parseSingleImage(url) {
       var s = url.split("/").slice(0,-4);
-      //console.log(s);
       var id = s.join("/");
-      //console.log(id);
       // initialize an object that will contain info
       var o = {'label':'', 'metadata':[], 'images':[] }
       o.label = "No title";
@@ -136,8 +141,6 @@
   
   function buildGallery(id) {
   
-    //console.log(manifests[id]);
-  
     if(submitted == 1) {
        jQuery("#gallery").empty();
        submitted = 0;
@@ -146,8 +149,14 @@
     var html = "<div>";
     html += "<p class='gallery-manifest-label'>"+manifests[id].label+"</p>";
     html += "<ul>";
+
     jQuery.each(images, function(i,v){ 
-      html += "<li class='gallery-item' data-manifest='"+v.manifest+"' data-canvas='"+v.canvas+"' data-service='"+v.service+"' alt='image "+i+"'><img alt='"+v.label+"' src='"+v.service+"/full/,200/0/default.jpg'/><div class='gallery-item-label'>"+v.label+"</div></li>";
+      if(v.service != 'error') {
+         html += "<li class='gallery-item' data-manifest='"+v.manifest+"' data-canvas='"+v.canvas+"' data-service='"+v.service+"' alt='image "+i+"'><img alt='"+v.label+"' src='"+v.service+"/full/,200/0/default.jpg'/><div class='gallery-item-label'>"+v.label+" </div></li>";
+      }
+      else {
+         html += "<li class='gallery-item' data-manifest='"+v.manifest+"' data-canvas='"+v.canvas+"' data-service='"+v.service+"' alt='image "+i+"'><div class='gallery-item-label'>"+v.label+" </div></li>";
+      }
     }); 
     html += "</ul>";
     html += "</div>";
