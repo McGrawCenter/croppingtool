@@ -40,12 +40,15 @@
 
 			      var label = getFirstValue(manifest.label);
 
-			      
+				console.log(manifest.metadata);
+
+			      if(typeof manifest.metadata != undefined) {
 			      manifest.metadata.forEach(function(meta){
 			        var meta_label = getFirstValue(meta.label);
 			        var meta_value = getFirstValue(meta.value);
 			        metadata.push({'label':meta_label, 'value': meta_value });
 			      });
+			      }
 			      
 			      var o = {'label':label,'metadata':metadata}
 			      manifests[url] = o;

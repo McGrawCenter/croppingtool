@@ -236,11 +236,12 @@
 		    //construct html of thumbnail in bottom tray
 
 		    var preview_item = "<div class='preview-item active-item' data-service='"+outputs.service+"' data-canvas='"+outputs.canvas+"' data-manifest='"+manifest_url+"' data-selection='"+selection_index+"'>\
-		    <a href='#' class='selectcrop'>"+img_html+"</a>\
+		    <a href='#' class='selectcrop copyable'>"+img_html+"</a>\
 		    <span class='preview-item-tools'>\
-		     <a href='#' class='preview-item-metadata'><img src='assets/images/info-circle-white.svg' height='15'/></a>\
-		     <a href='"+crop_url+"' class='preview-item-external' target='_blank'><img src='assets/images/external-white.svg' height='15'/></a>\
-		     <a href='#' class='preview-item-close'><img src='assets/images/x-white.svg' height='15'/></a></span></div>";
+		     <a href='#' class='copyable'><img src='assets/images/copy.svg' class='icon-sm'/></a>\
+		     <a href='#' class='preview-item-metadata'><img src='assets/images/info-circle-white.svg' class='icon-sm'/></a>\
+		     <a href='"+crop_url+"' class='preview-item-external' target='_blank'><img src='assets/images/external-white.svg' class='icon-sm'/></a>\
+		     <a href='#' class='preview-item-close'><img src='assets/images/x-white.svg' class='icon-sm'/></a></span></div>";
 
 		    jQuery("#preview").find('.preview-tray').prepend(preview_item);
 		    

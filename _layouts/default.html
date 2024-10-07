@@ -113,9 +113,46 @@
 	  navigator.clipboard.writeText(copytext.value);
 	}
 	
+	
+	
 	jQuery( document ).keydown(function(e) {
 	  if(e.shiftKey) { console.log("pressed"); }
 	});	
+
+
+//https://stackoverflow.com/questions/33175909/copy-image-to-clipboard
+//Cross-browser function to select content
+
+function SelectText(element) {
+  var doc = document;
+  if (doc.body.createTextRange) {
+    var range = document.body.createTextRange();
+    range.moveToElementText(element);
+    range.select();
+  } else if (window.getSelection) {
+    var selection = window.getSelection();
+    var range = document.createRange();
+    range.selectNodeContents(element);
+    selection.removeAllRanges();
+    selection.addRange(range);
+  }
+}
+jQuery(document).on("click",".copyable",function(e) {
+  var containerDiv = jQuery(this).parent().parent().find(".selectcrop");
+  //Make the container Div contenteditable
+  containerDiv.attr("contenteditable", true);
+  //Select the image
+  SelectText(containerDiv.get(0));
+  //Execute copy Command
+  //Note: This will ONLY work directly inside a click listener
+  document.execCommand('copy');
+  //Unselect the content
+  window.getSelection().removeAllRanges();
+  //Make the container Div uneditable again
+  containerDiv.removeAttr("contenteditable");
+  //Success!!
+  console.log("image copied!");
+});
 
 
   </script>
