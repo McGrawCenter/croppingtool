@@ -7,11 +7,13 @@
   <script src="assets/js/jquery.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@iiif/vault@latest/dist/index.umd.js"></script>
   
-<!-- jQuery Modal -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-modal/0.9.1/jquery.modal.min.js"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-modal/0.9.1/jquery.modal.min.css" />
+  <!-- jQuery Modal -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-modal/0.9.1/jquery.modal.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-modal/0.9.1/jquery.modal.min.css" />
   
-  <!--<script src="assets/js/modal.js?v=0.1"></script>-->
+  <!-- Tippy -->
+  <script src="https://unpkg.com/popper.js@1"></script>
+  <script src="https://unpkg.com/tippy.js@5"></script>
 
   <link type="text/css" rel="stylesheet" href="assets/css/style.css">
   <link rel="shortcut icon" type="image/jpg" href="assets/images/favicon.gif"/>
@@ -67,14 +69,15 @@
 	    <button id="copy" style="position:absolute;right:0px;top:0px;font-size:0.8em;display:none;" onClick="javascript:copytext();return false;">Copy</button>
 	  </p>
 	  <p id="mode" style="margin-top:0px;">
+	     <label for="full">
+	       <input id='full' name='mode' type='radio' value='1' checked='checked'/>
+	       <span>Full</span>
+	     </label>		  
 	     <label for="detail">
-	       <input id='detail' name='mode' type='radio' value='1' checked='checked'/>
+	       <input id='detail' name='mode' type='radio' value='1'/>
 	       <span>Actual</span>
 	     </label>
-	     <label for="full">
-	       <input id='full' name='mode' type='radio' value='1'/>
-	       <span>Full</span>
-	     </label>	     
+     
 	     <label for="html">
 	       <input id='html' name='mode' type='radio' value='1'/>
 	       <span>HTML</span>
@@ -153,6 +156,30 @@ jQuery(document).on("click",".copyable",function(e) {
   //Success!!
   console.log("image copied!");
 });
+
+
+/********************* tooltip ************/
+
+tippy('#copy', {
+  trigger: "click",
+  content: "Copied",
+  onShow(instance) {
+    setTimeout(() => {
+      instance.hide();
+    }, 2000);
+  }
+});
+
+tippy('.copyable', {
+  trigger: "click",
+  content: "Copied",
+  onShow(instance) {
+    setTimeout(() => {
+      instance.hide();
+    }, 2000);
+  }
+});
+
 
 
   </script>

@@ -200,7 +200,11 @@
 	      		      
 		viewer.updateOverlay(drag.overlayElement, location);
 		
+		// crop url is the image that is currently selected
 		crop_url = outputs.service+"/"+region[0]+","+region[1]+","+region[2]+","+region[3]+"/"+overlayHeight+",/"+rotation+"/default.jpg";
+		
+		// thumbnail url is always 300 pixels width. It is just for display
+		thumbnail_url = outputs.service+"/"+region[0]+","+region[1]+","+region[2]+","+region[3]+"/,300/"+rotation+"/default.jpg";
 		
 	        if(max_or_full == 'max') { 
 	          uncropped_url = outputs.service+"/"+region[0]+","+region[1]+","+region[2]+","+region[3]+"/max/"+rotation+"/default.jpg";
@@ -220,7 +224,7 @@
 		
 		    manifest_url = jQuery("#url").val();
 
-		    var img_html = "<img alt='thumbnail image' src='"+crop_url+"' data-manifest='"+manifest_url+"'/>";
+		    var img_html = "<img alt='thumbnail image' src='"+thumbnail_url+"' data-manifest='"+manifest_url+"'/>";
 		    console.log(outputs);
 		    
 		    // add info to the selections array
@@ -236,7 +240,7 @@
 		    //construct html of thumbnail in bottom tray
 
 		    var preview_item = "<div class='preview-item active-item' data-service='"+outputs.service+"' data-canvas='"+outputs.canvas+"' data-manifest='"+manifest_url+"' data-selection='"+selection_index+"'>\
-		    <a href='#' class='selectcrop copyable'>"+img_html+"</a>\
+		    <a href='#' class='selectcrop copyable' data-tippy-content='Tooltip'>"+img_html+"</a>\
 		    <span class='preview-item-tools'>\
 		     <a href='#' class='copyable'><img src='assets/images/copy.svg' class='icon-sm'/></a>\
 		     <a href='#' class='preview-item-metadata'><img src='assets/images/info-circle-white.svg' class='icon-sm'/></a>\
@@ -244,6 +248,17 @@
 		     <a href='#' class='preview-item-close'><img src='assets/images/x-white.svg' class='icon-sm'/></a></span></div>";
 
 		    jQuery("#preview").find('.preview-tray').prepend(preview_item);
+		    
+		    tippy('.copyable', {
+  trigger: "click",
+  content: "Copied",
+  placement: "left",
+  onShow(instance) {
+    setTimeout(() => {
+      instance.hide();
+    }, 2000);
+  }
+});
 		    
 		    jQuery("#preview").addClass('shown').show();
 		    
