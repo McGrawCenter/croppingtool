@@ -223,8 +223,10 @@
 		if(selectionMode==true) { 
 		
 		    manifest_url = jQuery("#url").val();
+		    
+		    var label = manifests[manifest_url].label.replace("'","&apos;").replace('"','&apos;');
 
-		    var img_html = "<img alt='detail from "+manifests[manifest_url].label+"' src='"+thumbnail_url+"' data-manifest='"+manifest_url+"'/>";
+		    var img_html = "<img alt='detail from "+label+"' src='"+thumbnail_url+"' data-manifest='"+manifest_url+"'/>";
 	    
 		    // add info to the selections array
 		    // creating an id would probably be good
@@ -239,7 +241,7 @@
 		    //construct html of thumbnail in bottom tray
     		    console.log(manifests);
     		    
-    		    var label = manifests[manifest_url].label.replace("'","&apos;")
+    		    
 
 		    var preview_item = "<div class='preview-item active-item' data-service='"+outputs.service+"' data-canvas='"+outputs.canvas+"' data-manifest='"+manifest_url+"' data-selection='"+selection_index+"'>\
 		    <div class='selectcrop copyable' data-tippy-content='Tooltip'>\
