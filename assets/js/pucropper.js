@@ -40,7 +40,6 @@
 
 			      var label = getFirstValue(manifest.label);
 
-				console.log(manifest.metadata);
 
 			      if(typeof manifest.metadata != undefined) {
 			      manifest.metadata.forEach(function(meta){

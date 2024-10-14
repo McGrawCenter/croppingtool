@@ -224,9 +224,8 @@
 		
 		    manifest_url = jQuery("#url").val();
 
-		    var img_html = "<img alt='thumbnail image' src='"+thumbnail_url+"' data-manifest='"+manifest_url+"'/>";
-		    console.log(outputs);
-		    
+		    var img_html = "<img alt='detail from "+manifests[manifest_url].label+"' src='"+thumbnail_url+"' data-manifest='"+manifest_url+"'/>";
+	    
 		    // add info to the selections array
 		    // creating an id would probably be good
 		    var selection_index = selections.push({"id":"", "manifest":manifest_url,"detail":crop_url,"html":img_html, "full":uncropped_url, "mode": "detail"})-1;
@@ -238,9 +237,12 @@
 
 
 		    //construct html of thumbnail in bottom tray
+    		    console.log(manifests);
 
 		    var preview_item = "<div class='preview-item active-item' data-service='"+outputs.service+"' data-canvas='"+outputs.canvas+"' data-manifest='"+manifest_url+"' data-selection='"+selection_index+"'>\
-		    <a href='#' class='selectcrop copyable' data-tippy-content='Tooltip'>"+img_html+"</a>\
+		    <div class='selectcrop copyable' data-tippy-content='Tooltip'>\
+		    <a href='?manifest="+manifest_url+"' title='Detail from "+manifests[manifest_url].label+"' target='_blank'>"+img_html+"</a>\
+		    </div>\
 		    <span class='preview-item-tools'>\
 		     <a href='#' class='copyable'><img src='assets/images/copy.svg' class='icon-sm'/></a>\
 		     <a href='#' class='preview-item-metadata'><img src='assets/images/info-circle-white.svg' class='icon-sm'/></a>\
