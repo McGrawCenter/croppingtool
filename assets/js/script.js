@@ -238,10 +238,12 @@
 
 		    //construct html of thumbnail in bottom tray
     		    console.log(manifests);
+    		    
+    		    var label = manifests[manifest_url].label.replace("'","&apos;")
 
 		    var preview_item = "<div class='preview-item active-item' data-service='"+outputs.service+"' data-canvas='"+outputs.canvas+"' data-manifest='"+manifest_url+"' data-selection='"+selection_index+"'>\
 		    <div class='selectcrop copyable' data-tippy-content='Tooltip'>\
-		    <a href='?manifest="+manifest_url+"' title='Detail from "+manifests[manifest_url].label+"' target='_blank'>"+img_html+"</a>\
+		    <a href='?manifest="+manifest_url+"' title='Detail from "+label+"' target='_blank'>"+img_html+"</a>\
 		    </div>\
 		    <span class='preview-item-tools'>\
 		     <a href='#' class='copyable'><img src='assets/images/copy.svg' class='icon-sm'/></a>\
