@@ -225,8 +225,9 @@
 		    manifest_url = jQuery("#url").val();
 		    
 		    var label = manifests[manifest_url].label.replace("'","&apos;").replace('"','&apos;');
+		    console.log(label);
 
-		    var img_html = "<img alt='detail from "+label+"' src='"+thumbnail_url+"' data-manifest='"+manifest_url+"'/>";
+		    var img_html = "<img alt='detail' src='"+thumbnail_url+"' data-manifest='"+manifest_url+"'/>";
 	    
 		    // add info to the selections array
 		    // creating an id would probably be good
@@ -245,7 +246,7 @@
 
 		    var preview_item = "<div class='preview-item active-item' data-service='"+outputs.service+"' data-canvas='"+outputs.canvas+"' data-manifest='"+manifest_url+"' data-selection='"+selection_index+"'>\
 		    <div class='selectcrop copyable' data-tippy-content='Tooltip'>\
-		    <a href='?manifest="+manifest_url+"' title='Detail from "+label+"' target='_blank'>"+img_html+"</a>\
+		    <a href='?manifest="+manifest_url+"' title='detail image' target='_blank'>"+img_html+"</a>\
 		    </div>\
 		    <span class='preview-item-tools'>\
 		     <a href='#' class='copyable'><img src='assets/images/copy.svg' class='icon-sm'/></a>\
