@@ -224,8 +224,9 @@
 		
 		    manifest_url = jQuery("#url").val();
 		    
-		    var label = manifests[manifest_url].label.replace("'","&apos;").replace('"','&apos;');
-		    console.log(label);
+		    //took this out because it broke it when using an image url
+		    //var label = manifests[manifest_url].label.replace("'","&apos;").replace('"','&apos;');
+		    //console.log(label);
 
 		    var img_html = "<img alt='detail' src='"+thumbnail_url+"' data-manifest='"+manifest_url+"'/>";
 	    
