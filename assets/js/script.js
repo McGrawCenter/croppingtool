@@ -243,11 +243,11 @@
 		    //construct html of thumbnail in bottom tray
     		    console.log(manifests);
     		    
-    		    
+    		    var mirador_link = "https://mcgrawcenter.github.io/mirador/?manifest="+manifest_url+"&canvas="+outputs.canvas;
 
 		    var preview_item = "<div class='preview-item active-item' data-service='"+outputs.service+"' data-canvas='"+outputs.canvas+"' data-manifest='"+manifest_url+"' data-selection='"+selection_index+"'>\
 		    <div class='selectcrop copyable' data-tippy-content='Tooltip'>\
-		    <a href='"+uncropped_url+"' title='detail image' target='_blank'>"+img_html+"</a>\
+		    <a href='"+mirador_link+"' title='detail image' target='_blank'>"+img_html+"</a>\
 		    </div>\
 		    <span class='preview-item-tools'>\
 		     <a href='#' class='copyable'><img src='assets/images/copy.svg' class='icon-sm'/></a>\
