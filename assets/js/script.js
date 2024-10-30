@@ -6,7 +6,7 @@
   	
   	// outputs is an object that holds the current output urls that will
   	// be displayed in the output window for whatever is currently selected
-  	var outputs = {'manifest':'', 'service':'','detail':'','full':'','html':''};
+  	var outputs = {'manifest':'', 'canvas': '', 'service':'','detail':'','full':'','html':''};
 
   	
     	var overlay = false;
@@ -15,6 +15,7 @@
     	var region = [];
   	var current_image = "";
   	var manifest_url = "";
+  	var canvas = "";
   	var rotation = 0;
   	
   	
@@ -62,9 +63,20 @@
 	  rotation = viewer.viewport.getRotation();
 	  console.log(rotation);
 	  if(rotation < 0) { rotation = 360 + rotation; }
+	  if(rotation == 360) { rotation = 0; }
 	  console.log(rotation);
 	});
 	
+	/*
+	viewer.addHandler('zoom', function(){
+	  var z = viewer.viewport.getZoom();
+	  var w = viewer.tileSources[0].width;
+	  var c = parseInt((w * z) * 0.18);
+	  outputs.detail = outputs.service+"/full/"+c+",/0/default.jpg";
+	  console.log(outputs);
+	  updateOutputURLs();
+	});
+	*/
 	
 	/******************
 	* select a gallery item
@@ -74,7 +86,7 @@
 	
 	  
 	  var manifest_url = jQuery(this).attr('data-manifest');
-	  var canvas = jQuery(this).attr('data-canvas');
+	  canvas = jQuery(this).attr('data-canvas');
 	  
 	  service = jQuery(this).attr('data-service');
 	  
@@ -240,10 +252,6 @@
 
 
 		    //construct html of thumbnail in bottom tray
-    		    console.log(manifests);
-    		    
-    		    //ben
-    		    console.log(outputs);
     		    
     		    var mirador_link = "https://mcgrawcenter.github.io/mirador/?manifest="+manifest_url+"&canvas="+outputs.canvas;
 
@@ -286,6 +294,7 @@
 		    
 		    outputs = { 
 		      'manifest':manifest_url,
+		      'canvas': canvas,
 		      'service': service,
 		      'detail':crop_url,
 		      'full':uncropped_url,
@@ -404,6 +413,7 @@
 
 	  outputs = { 
 	    'manifest':manifest_url,
+	    'canvas': canvas,
 	    'service':service,
 	    'detail':selections[selection_index]['detail'],
 	    'full':selections[selection_index]['full'],
@@ -436,30 +446,42 @@
 
 	
 	jQuery("#detail").click(function(e){
+	   setMode('detail');
 	   //set the val of the output texarea
-	   jQuery("#output").val(outputs.detail).attr('data-mode','detail');
+	   //jQuery("#output").val(outputs.detail).attr('data-mode','detail');
 	   //set the href of the external link if there is a highlighted crop item
-	   jQuery(".preview-item.active-item").find(".preview-item-external").attr('href',outputs.detail);
+	   //jQuery(".preview-item.active-item").find(".preview-item-external").attr('href',outputs.detail);
 	});	
 	
 	jQuery("#full").click(function(e){
-	  jQuery("#output").val(outputs.full).attr('data-mode','full');
-	  jQuery(".preview-item.active-item").find(".preview-item-external").attr('href',outputs.full);
+	  setMode('full');
+	  //jQuery("#output").val(outputs.full).attr('data-mode','full');
+	  //jQuery(".preview-item.active-item").find(".preview-item-external").attr('href',outputs.full);
 	});
 
 
 	jQuery("#html").click(function(e){
-	  jQuery("#output").val(outputs.html).attr('data-mode','html');
-	  jQuery(".preview-item.active-item").find(".preview-item-external").attr('href',outputs.detail);
+	  setMode('html');
+	  //jQuery("#output").val(outputs.html).attr('data-mode','html');
+	  //jQuery(".preview-item.active-item").find(".preview-item-external").attr('href',outputs.detail);
 	});
+	
+	
+	
+	/******************************
+	*  Set the mode
+	********************************/
 	
 	
 	function setMode(mode) {
 	  jQuery("input[id='"+mode+"']").prop("checked", true);
 	  jQuery("#output").attr("data-mode",mode);
+	  console.log(outputs);
 	  updateOutputURLs();
 	  jQuery(".preview-item.active-item").find(".preview-item-external").attr('href',outputs[mode]);
 	}
+	
+	
 	
 	function updateOutputURLs() {
 	  var mode = jQuery("#output").attr("data-mode");
