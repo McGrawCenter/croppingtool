@@ -119,6 +119,8 @@ input[type='text'], textarea {
  border:solid 0px black;
  color:white;
  cursor:pointer;
+ border-radius: 5px;
+ width: 6em;
 }
 
 
@@ -249,7 +251,7 @@ input[type='text'], textarea {
 #mode input { display:none; }
 #mode label { cursor:pointer; }
 #mode label span{ padding:3px 4px; }
-#mode input[type="radio"]:checked + span{ font-weight: bold;background:#1967d2;color:white; } 
+#mode input[type="radio"]:checked + span{ font-weight: bold;background:#1967d2;color:white;border-radius:3px; } 
 
 
 

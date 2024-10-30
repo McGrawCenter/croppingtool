@@ -107,7 +107,6 @@
 	    'html':"<img alt='' src='"+full_size+"' data-manifest='"+manifest_url+"'/>"
 	  }
 	  
-	  console.log(outputs);
 	  
 	  // update the urls that appear in the output textarea
 	  updateOutputURLs();
@@ -243,6 +242,9 @@
 		    //construct html of thumbnail in bottom tray
     		    console.log(manifests);
     		    
+    		    //ben
+    		    console.log(outputs);
+    		    
     		    var mirador_link = "https://mcgrawcenter.github.io/mirador/?manifest="+manifest_url+"&canvas="+outputs.canvas;
 
 		    var preview_item = "<div class='preview-item active-item' data-service='"+outputs.service+"' data-canvas='"+outputs.canvas+"' data-manifest='"+manifest_url+"' data-selection='"+selection_index+"'>\
@@ -258,15 +260,15 @@
 		    jQuery("#preview").find('.preview-tray').prepend(preview_item);
 		    
 		    tippy('.copyable', {
-  trigger: "click",
-  content: "Copied",
-  placement: "left",
-  onShow(instance) {
-    setTimeout(() => {
-      instance.hide();
-    }, 2000);
-  }
-});
+			  trigger: "click",
+			  content: "Copied",
+			  placement: "left",
+			  onShow(instance) {
+			    setTimeout(() => {
+			      instance.hide();
+			    }, 2000);
+			  }
+			});
 		    
 		    jQuery("#preview").addClass('shown').show();
 		    
@@ -290,7 +292,7 @@
 		      'html':img_html
 		    }
 		    jQuery("#output").attr('data-mode','detail');
-		    	    
+		    setMode('full');
 		    updateOutputURLs();
 		    //console.log(outputs);
 		} 
@@ -452,7 +454,12 @@
 	});
 	
 	
-	
+	function setMode(mode) {
+	  jQuery("input[id='"+mode+"']").prop("checked", true);
+	  jQuery("#output").attr("data-mode",mode);
+	  updateOutputURLs();
+	  jQuery(".preview-item.active-item").find(".preview-item-external").attr('href',outputs[mode]);
+	}
 	
 	function updateOutputURLs() {
 	  var mode = jQuery("#output").attr("data-mode");
