@@ -88,6 +88,8 @@
 			                }
 			              }
 			            }
+			            // remove trailing slash from service url if necessary
+			            service = service.replace(/\/$/, "");
 			            var x = {'service':service, 'manifest': url, 'canvas': canvas, 'label': label}
 			            images.push(x);
 
