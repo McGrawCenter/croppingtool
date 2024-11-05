@@ -19,8 +19,6 @@
   * 
   *************************************/
   function load(url) {
-  
-  
 
     //jQuery("#gallery").empty();
     images = [];
@@ -36,11 +34,9 @@
     // if this is a IIIF image url, parse it
     if(url.search(/\/([0-9]{1,3})\/(color|gray|bitonal|default)\.(png|jpg)/) > 0) { parseSingleImage(url);  }
     else {
-    
 
 			    const vault = new IIIFVault.Vault();
 			    vault.loadManifest(url).then(async (manifest) => {
-
 
 			      var label = getFirstValue(manifest.label);
 
@@ -70,11 +66,10 @@
 			        break;
 			        
 			        case 'Manifest':
+
 			          var items = vault.get(items);
 
 			          items.forEach((it) => {
-			          
-
 			            var canvas = it.id;
 			            var label = getFirstValue(it.label);
 			            var service = "error";
