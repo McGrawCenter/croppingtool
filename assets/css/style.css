@@ -216,6 +216,8 @@ input[type='text'], textarea {
   max-height:140px;
   object-fit: contain;
 }
+
+.preview-item { cursor:pointer; }
 .preview-item-tools {
   position: absolute;
   top: 0px;
