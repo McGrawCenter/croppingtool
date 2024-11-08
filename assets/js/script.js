@@ -256,7 +256,8 @@
     		    var mirador_link = "https://mcgrawcenter.github.io/mirador/?manifest="+manifest_url+"&canvas="+outputs.canvas;
 
 		    var preview_item = "<div class='preview-item active-item' data-service='"+outputs.service+"' data-canvas='"+outputs.canvas+"' data-manifest='"+manifest_url+"' data-selection='"+selection_index+"'>\
-		    <div class='selectcrop copyable' data-tippy-content='Tooltip'>\
+		    <div>"+img_html+"</div>\
+		    <div class='selectcrop copyable' style='position:absolute;top:0px;left:0px;z-index:-100'>\
 		    <a href='"+mirador_link+"' title='detail image' target='_blank'>"+img_html+"</a>\
 		    </div>\
 		    <span class='preview-item-tools'>\
