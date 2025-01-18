@@ -30,9 +30,13 @@
     // convert it to a manifest
     if(url.indexOf("archive.org") > 0 && url.indexOf("details") > 0) { url = internetArchive2Manifest(url);   }    
 
+    // if this is a Wikimedia Commons URL
+    // convert it to a manifest
+    if(url.indexOf("commons.wikimedia.org") > 0 && url.indexOf("File:") > 0) { url = wikimediaCommons2Manifest(url);   }   
 
     // if this is a IIIF image url, parse it
-    if(url.search(/\/([0-9]{1,3})\/(color|gray|bitonal|default)\.(png|jpg)/) > 0) { parseSingleImage(url);  }
+    console.log(url.search(/\/([0-9]{1,3})\/(color|gray|bitonal|default)\.(png|jpg)/));
+    if(url.search(/\/([0-9]{1,3})\/(color|gray|bitonal|default)\.(png|jpg)/) > 0) { console.log("here"); parseSingleImage(url);  }
     else {
 
 			    const vault = new IIIFVault.Vault();
@@ -79,12 +83,13 @@
 			                var j = vault.get(i.items[0]);
 			                if(j.body[0]) {
 			                  var k = vault.get(j.body[0]);
-			                  if(k.service[0]) {
+			                  if(k.service != undefined) {
 			                     service = k.service[0]['@id'];
 			                     if(!service) {
 			                         service = k.service[0]['id'];
 			                     }
 			                  }
+			                  console.log(k);
 			                }
 			              }
 			            }
@@ -124,8 +129,21 @@
   /************************************
   * 
   *************************************/
+  function wikimediaCommons2Manifest (url) {  
+    var parts = url.split("File:");
+    return "https://iiif.juncture-digital.org/wc:"+parts[1]+"/manifest.json";  
+  }
+  
+  
+
+  /************************************
+  * 
+  *************************************/
   function parseSingleImage(url) {
+    
+      // image parse
       var s = url.split("/").slice(0,-4);
+      
       var id = s.join("/");
       // initialize an object that will contain info
       var o = {'label':'', 'metadata':[], 'images':[] }
