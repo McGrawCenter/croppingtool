@@ -121,7 +121,7 @@
      for(var x=0;x<=parts.length;x++) { 
        if(parts[x] == 'details') { 
          var ia_id = parts[x+1];
-         return "https://iiif.archivelab.org/iiif/"+ia_id+"/manifest.json";
+         return "https://iiif.archive.org/iiif/"+ia_id+"/manifest.json";
        }
      }     
   }
