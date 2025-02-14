@@ -217,11 +217,14 @@
 		// thumbnail url is always 300 pixels width. It is just for display
 		thumbnail_url = outputs.service+"/"+region[0]+","+region[1]+","+region[2]+","+region[3]+"/,300/"+rotation+"/default.jpg";
 		
+		
+		// TEMP FIX. MAX AND FULL NEEDS TO BE HANDLED
+		// defaulted to 1200 width, but should be max or full
 	        if(max_or_full == 'max') { 
-	          uncropped_url = outputs.service+"/"+region[0]+","+region[1]+","+region[2]+","+region[3]+"/max/"+rotation+"/default.jpg";
+	          uncropped_url = outputs.service+"/"+region[0]+","+region[1]+","+region[2]+","+region[3]+"/1200,/"+rotation+"/default.jpg";
 	        }
 	        else { 
-	          uncropped_url = outputs.service+"/"+region[0]+","+region[1]+","+region[2]+","+region[3]+"/full/"+rotation+"/default.jpg";
+	          uncropped_url = outputs.service+"/"+region[0]+","+region[1]+","+region[2]+","+region[3]+"/1200,/"+rotation+"/default.jpg";
 	        }		
 		
 			
