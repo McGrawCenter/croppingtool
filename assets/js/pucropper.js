@@ -35,7 +35,6 @@
     if(url.indexOf("commons.wikimedia.org") > 0 && url.indexOf("File:") > 0) { url = wikimediaCommons2Manifest(url);   }   
 
     // if this is a IIIF image url, parse it
-    console.log(url.search(/\/([0-9]{1,3})\/(color|gray|bitonal|default)\.(png|jpg)/));
     if(url.search(/\/([0-9]{1,3})\/(color|gray|bitonal|default)\.(png|jpg)/) > 0) { console.log("here"); parseSingleImage(url);  }
     else {
 
@@ -84,10 +83,29 @@
 			                if(j.body[0]) {
 			                  var k = vault.get(j.body[0]);
 			                  if(k.service != undefined) {
+			                  
+			                  
+			                    // start here sniffing which image server version
+			                     if(typeof k.service[0]['@context'] != "undefined") {
+			                     	 var version = 2;
+			                     }
+			                     else {
+			                        if(typeof k.service[0]['@type'] != "undefined") {
+			                          if( k.service[0]['@type'] == 'ImageService3') { var version = 3; }
+			                          else { var version = 2; }
+			                          
+			                        }
+			                        else { 
+			                          if( k.service.type == 'ImageService3') { var version = 3; }
+			                          else { var version = 2; } 
+			                        }
+			                     }
+			                     // end sniffing
 			                     service = k.service[0]['@id'];
 			                     if(!service) {
 			                         service = k.service[0]['id'];
 			                     }
+			                     
 			                  }
 			                  console.log(k);
 			                }
@@ -95,7 +113,8 @@
 			            }
 			            // remove trailing slash from service url if necessary
 			            service = service.replace(/\/$/, "");
-			            var x = {'service':service, 'manifest': url, 'canvas': canvas, 'label': label}
+			            var x = {'service':service, 'manifest': url, 'canvas': canvas, 'label': label, 'version': version}
+			            console.log(x);
 			            images.push(x);
 
 			          });
