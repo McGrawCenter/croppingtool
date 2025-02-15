@@ -87,8 +87,8 @@
 	  
 	  var manifest_url = jQuery(this).attr('data-manifest');
 	  canvas = jQuery(this).attr('data-canvas');
-	  
 	  service = jQuery(this).attr('data-service');
+	  var version = jQuery(this).attr('data-version');
 	  
 	  //current = {'service':service, 'manifest': manifest_url, 'label': '', 'rotation': 0}
 
@@ -107,6 +107,7 @@
 	  
 	  
 	  // i had orignally populate the output textarea with the full url when one clicked on the gallery item
+	  if(version == "3") { max_or_full = "max"; }
 	  if(max_or_full == 'max') { var full_size = service+"/full/max/0/default.jpg"; }
 	  else { var full_size = service+"/full/full/0/default.jpg"; }
 

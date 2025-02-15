@@ -193,10 +193,10 @@
 
     jQuery.each(images, function(i,v){ 
       if(v.service != 'error') {
-         html += "<li class='gallery-item' data-manifest='"+v.manifest+"' data-canvas='"+v.canvas+"' data-service='"+v.service+"' alt='image "+i+"'><img alt='"+v.label+"' src='"+v.service+"/full/,200/0/default.jpg'/><div class='gallery-item-label'>"+v.label+" </div></li>";
+         html += "<li class='gallery-item' data-manifest='"+v.manifest+"' data-canvas='"+v.canvas+"' data-service='"+v.service+"' data-version='"+v.version+"' alt='image "+i+"'><img alt='"+v.label+"' src='"+v.service+"/full/,200/0/default.jpg'/><div class='gallery-item-label'>"+v.label+" </div></li>";
       }
       else {
-         html += "<li class='gallery-item' data-manifest='"+v.manifest+"' data-canvas='"+v.canvas+"' data-service='"+v.service+"' alt='image "+i+"'><div class='gallery-item-label'>"+v.label+" </div></li>";
+         html += "<li class='gallery-item' data-manifest='"+v.manifest+"' data-canvas='"+v.canvas+"' data-service='"+v.service+"' data-version='"+v.version+"' alt='image "+i+"'><div class='gallery-item-label'>"+v.label+" </div></li>";
       }
     }); 
     html += "</ul>";
