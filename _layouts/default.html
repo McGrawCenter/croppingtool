@@ -23,12 +23,12 @@
 
 
     <!-- -------------- overlays ---------------- -->
-    <div id='dropzone' class='overlay'>Drop a manifest link here</div>
+    <div id='dropzone' class=''>Drop a manifest link here</div>
     
     
-<div id="modal" class="modal" style="display:none">
-  <div id="modal_content"></div>
-</div>
+    <div id="modal" class="modal" style="display:none">
+      <div id="modal_content"></div>
+    </div>
 
 <div id="about" class="about" style="display:none">
   <p>This tool is intended to be used in course assignments that take advantage of IIIF-enabled digital image collections. Submit a manifest URL to build a gallery of thumbnails. Select a thumbnail to open that image in the right-hand window. Enable the cropping tool to extract details for use in discussion board posts or other course assignments.</p>
@@ -59,27 +59,31 @@
 	  -->
 	  <p class='url-element' style="position:relative;display:flex;">
 
-	    <input type="text" id="url" placeholder="Enter the URL of a IIIF manifest." value="" />
+	    <input type="text" id="url" placeholder="Enter the URL of a IIIF manifest." value="https://data.artmuseum.princeton.edu/iiif/objects/23888" />
 	    <button id="submit" style="position:absolute;right:0px;top:0px;height:100%;">Submit</button>
 
 	  </p>
 	  
 	  <p class='output-element' style="position:relative;display:flex;margin-bottom:0px;">
-	    <textarea id="output" rows='4' data-current='0' data-mode='detail'></textarea>
+	    <textarea id="output" rows='4' data-current='0' data-mode='large'></textarea>
 	    <button id="copy" style="position:absolute;right:0px;top:0px;font-size:0.8em;display:none;" onClick="javascript:copytext();return false;">Copy</button>
 	  </p>
 	  <p id="mode" style="margin-top:0px;">
-	     <label for="full">
-	       <input id='full' name='mode' type='radio' value='1' checked='checked'/>
-	       <span>Full</span>
-	     </label>		  
-	     <label for="detail">
-	       <input id='detail' name='mode' type='radio' value='1'/>
+	     <label for="large">
+	       <input id='large' class='setmode' data-mode='large' name='mode' type='radio' value='1' checked='checked'/>
+	       <span>Large</span>
+	     </label>
+	     <label for="small">
+	       <input id='small' class='setmode' data-mode='small' name='mode' type='radio' value='1'/>
+	       <span>Small</span>
+	     </label>	      
+	     <label for="actual">
+	       <input id='actual' class='setmode' data-mode='actual' name='mode' type='radio' value='1'/>
 	       <span>Actual</span>
 	     </label>
      
 	     <label for="html">
-	       <input id='html' name='mode' type='radio' value='1'/>
+	       <input id='html' class='setmode' data-mode='html' name='mode' type='radio' value='1'/>
 	       <span>&lt;/&gt;</span>
 	     </label>
 	  </p>	
@@ -107,87 +111,18 @@
 
 <div id="footer"><a href="#about" rel="modal:open" class="about" alt="display information about this website"><img src="assets/images/info-circle.svg" height="16" title="about this website"/></a></div>
  
-   <script>
 
-	function copytext() {
-	  var copytext = document.getElementById("output");
-	  copytext.select();
-	  copytext.setSelectionRange(0, 99999); // For mobile devices
-	  navigator.clipboard.writeText(copytext.value);
-	}
-	
-	
-	
-	jQuery( document ).keydown(function(e) {
-	  if(e.shiftKey) { console.log("pressed"); }
-	});	
-
-
-//https://stackoverflow.com/questions/33175909/copy-image-to-clipboard
-//Cross-browser function to select content
-
-function SelectText(element) {
-  var doc = document;
-  if (doc.body.createTextRange) {
-    var range = document.body.createTextRange();
-    range.moveToElementText(element);
-    range.select();
-  } else if (window.getSelection) {
-    var selection = window.getSelection();
-    var range = document.createRange();
-    range.selectNodeContents(element);
-    selection.removeAllRanges();
-    selection.addRange(range);
-  }
-}
-jQuery(document).on("click",".copyable",function(e) {
-  var containerDiv = jQuery(this).parent().parent().find(".selectcrop");
-  //Make the container Div contenteditable
-  containerDiv.attr("contenteditable", true);
-  //Select the image
-  SelectText(containerDiv.get(0));
-  //Execute copy Command
-  //Note: This will ONLY work directly inside a click listener
-  document.execCommand('copy');
-  //Unselect the content
-  window.getSelection().removeAllRanges();
-  //Make the container Div uneditable again
-  containerDiv.removeAttr("contenteditable");
-  //Success!!
-  console.log("image copied!");
-});
-
-
-/********************* tooltip ************/
-
-tippy('#copy', {
-  trigger: "click",
-  content: "Copied",
-  onShow(instance) {
-    setTimeout(() => {
-      instance.hide();
-    }, 2000);
-  }
-});
-
-tippy('.copyable', {
-  trigger: "click",
-  content: "Copied",
-  onShow(instance) {
-    setTimeout(() => {
-      instance.hide();
-    }, 2000);
-  }
-});
-
-
-
-  </script>
   
   <script src="assets/js/openseadragon/openseadragon.min.js"></script>  
-  <script src="assets/js/pucropper.js?v=0.1.9"></script>
   <script src="assets/js/script.js?v=0.1.8"></script>
-  <script src="assets/js/dropzone.js?v=0.1"></script>  
+  <script src="assets/js/dropzone.js?v=0.1"></script>
+  
+   <script>
+   
+   
+     init();
+
+  </script>  
  
 </body>
 </html>

@@ -1,499 +1,598 @@
-  
-  
-  
-
-  	var current_id = "";
-  	
-  	// outputs is an object that holds the current output urls that will
-  	// be displayed in the output window for whatever is currently selected
-  	var outputs = {'manifest':'', 'canvas': '', 'service':'','detail':'','full':'','html':''};
-
-  	
-    	var overlay = false;
-    	var selectionMode = false;	
-    	var crop_url = "";
-    	var region = [];
-  	var current_image = "";
-  	var manifest_url = "";
-  	var canvas = "";
-  	var rotation = 0;
-  	
-  	
-       /****************
-       * masterlist contains records of each manifest that is added to the tool
-       * with title, descr, metadata, and images
-       ***********************************/
-  	var masterlist = {};	
-  	
-  	/****************
-  	* selections is a list of the crops
-  	**********************************/
-  	var selections = []; 
-  	
-  	
-  	//var minThumbWidth = 500;
-  
-  
-  	// adjust the height of the gallery to the size of the screen
-	var h = jQuery(window).height();
-	jQuery("#viewer").css("height", h);
-       var e1 = jQuery(".url-element").height();
-       var e2 = jQuery(".output-element").height();
-      
-       jQuery("#gallery").css("max-height",(h-190));
-       jQuery( window ).resize(function() {
-	  jQuery("#viewer").css("height",jQuery(window).height());
-       });
-       
-       
-       
-	
-	// initialize OSD
-	var viewer = OpenSeadragon({
-	    id: "viewer",
-	    prefixUrl: "assets/js/openseadragon/images/",
-	    tileSources:[],
-	    showFullPageControl:false,
-	    showRotationControl: true,
-	    minZoomLevel: 0.1    
-	});
-	
-	
-	viewer.addHandler('rotate', function(){
-	  rotation = viewer.viewport.getRotation();
-	  console.log(rotation);
-	  if(rotation < 0) { rotation = 360 + rotation; }
-	  if(rotation == 360) { rotation = 0; }
-	  console.log(rotation);
-	});
-	
-	/*
-	viewer.addHandler('zoom', function(){
-	  var z = viewer.viewport.getZoom();
-	  var w = viewer.tileSources[0].width;
-	  var c = parseInt((w * z) * 0.18);
-	  outputs.detail = outputs.service+"/full/"+c+",/0/default.jpg";
-	  console.log(outputs);
-	  updateOutputURLs();
-	});
-	*/
-	
-	/******************
-	* select a gallery item
-	***********************************************************/
-	
-	jQuery(document).on("click",".gallery-item",function(e){
-	
-	  
-	  var manifest_url = jQuery(this).attr('data-manifest');
-	  canvas = jQuery(this).attr('data-canvas');
-	  service = jQuery(this).attr('data-service');
-	  var version = jQuery(this).attr('data-version');
-	  
-	  //current = {'service':service, 'manifest': manifest_url, 'label': '', 'rotation': 0}
-
-	
-	  // highlight this gallery item
-	  jQuery(".gallery-item").removeClass('gallery-item-active');
-	  jQuery(this).addClass('gallery-item-active');
-	  
-	  // un-hilight any tray thumbs that might be highlighted
-	  jQuery(".preview-item").removeClass('active-item');
-	  
-	  
-	  jQuery("#crop").removeClass("activated");
-	  selectionMode = false;
-	  viewer.setMouseNavEnabled(true);	  
-	  
-	  
-	  // i had orignally populate the output textarea with the full url when one clicked on the gallery item
-	  if(version == "3") { max_or_full = "max"; }
-	  if(max_or_full == 'max') { var full_size = service+"/full/max/0/default.jpg"; }
-	  else { var full_size = service+"/full/full/0/default.jpg"; }
-
-	  outputs = {
-	    'manifest':manifest_url,
-	    'canvas': canvas,
-	    'service': service,
-	    'detail':full_size,
-	    'full':full_size,
-	    'html':"<img alt='' src='"+full_size+"' data-manifest='"+manifest_url+"'/>"
-	  }
-	  
-	  
-	  // update the urls that appear in the output textarea
-	  updateOutputURLs();
-	  
-	  jQuery("#image").prop("checked", true);
-	  
-
-	  jQuery.get(outputs.service+"/info.json", function(data){
-	    viewer.open(data);
-	    viewer.tileSources.unshift(data);
-	  });	  
-	  e.preventDefault();
-	});
-	
-	
-	// submit a url
-	jQuery("#submit").click(function(){
-	  var url = jQuery("#url").val();
-	  manifest_url = url;
-	  submitted = 1;
-	  load(url);
-	});
-	
-	
-	
-	
-	    	
-    	// draw overlays
-
-	new OpenSeadragon.MouseTracker({
-			  
-	    element: viewer.element,
-	    pressHandler: function(event) {
-
-		if (!selectionMode) {
-		    return;
-		}
-	      
-		if (overlay) {
-		    viewer.removeOverlay("overlay");
-		}
-		var overlayElement = document.createElement("div");
-		overlayElement.id = "overlay";
-		overlayElement.className = "highlight";
-		var viewportPos = viewer.viewport.pointFromPixel(event.position);
-		viewer.addOverlay({
-		    element: overlayElement,
-		    location: new OpenSeadragon.Rect(viewportPos.x, viewportPos.y, 0, 0)
-		});	      
-		overlay = true;  
-		drag = {
-		    overlayElement: overlayElement, 
-		    startPos: viewportPos
-		};
+	var CT = {
+	    'manifests': [],
+	    'metadata': [],
+	    'selections': {},
+	    'outputs': {},
+	    'gallery': {},
+	    'mode': 'full', // full or crop
+	    'overlayOn': false,
+	    'selectionMode': false,
+	    'current': {
+	        'manifest': '',
+	        'thumbnail': '',
+	        'canvas': '',
+	        'service': '',
+	        'version': 2,
+	        'rotation': 0,
+	        'region': "full",
+	        'size': 'full'
+	    }
+	}
 
 
-	    },
-	    dragHandler: function(event) {
-	         
-		if (typeof drag === 'undefined') {
-		    return;
-		}
-	      
-		var viewportPos = viewer.viewport.pointFromPixel(event.position);
 
-		var diffX = viewportPos.x - drag.startPos.x;
-		var diffY = viewportPos.y - drag.startPos.y;
-			     
-		var location = new OpenSeadragon.Rect(
-		    Math.min(drag.startPos.x, drag.startPos.x + diffX), 
-		    Math.min(drag.startPos.y, drag.startPos.y + diffY), 
-		    Math.abs(diffX), 
-		    Math.abs(diffY)
-		);
-	      
-		var overlayHeight = jQuery("#overlay")[0].clientWidth;
-		//if(overlayHeight < minThumbWidth) { overlayHeight = minThumbWidth; }
 
-		var w = viewer.tileSources[0].width;
-      
-		region = [
-		    Math.floor(location.x * w),
-		    Math.floor(location.y * w),
-		    Math.floor(location.width * w),
-		    Math.floor(location.height * w)
-		]
-		
-	      	// if the box goes outside the boundaries of the image
-	      	jQuery.each(region,function(i,v){ if(v < 0) { region[i] = 0; } });
-	      		      
-		viewer.updateOverlay(drag.overlayElement, location);
-		
-		// crop url is the image that is currently selected
-		crop_url = outputs.service+"/"+region[0]+","+region[1]+","+region[2]+","+region[3]+"/"+overlayHeight+",/"+rotation+"/default.jpg";
-		
-		// thumbnail url is always 300 pixels width. It is just for display
-		thumbnail_url = outputs.service+"/"+region[0]+","+region[1]+","+region[2]+","+region[3]+"/,300/"+rotation+"/default.jpg";
-		
-		
-		// TEMP FIX. MAX AND FULL NEEDS TO BE HANDLED
-		// defaulted to 1200 width, but should be max or full
-	        if(max_or_full == 'max') { 
-	          uncropped_url = outputs.service+"/"+region[0]+","+region[1]+","+region[2]+","+region[3]+"/max/"+rotation+"/default.jpg";
+
+
+
+	function init() {
+
+
+	    /*************************
+	     * get the url vars
+	     ***********************************/
+
+	    function getURLValues() {
+
+	        var search = window.location.search.replace(/^\?/, '').replace(/\+/g, ' ');
+	        var values = {};
+
+	        if (search.length) {
+	            var part, parts = search.split('&');
+
+	            for (var i = 0, iLen = parts.length; i < iLen; i++) {
+	                part = parts[i].split('=');
+	                values[part[0]] = window.decodeURIComponent(part[1]);
+	            }
 	        }
-	        else { 
-	          uncropped_url = outputs.service+"/"+region[0]+","+region[1]+","+region[2]+","+region[3]+"/full/"+rotation+"/default.jpg";
-	        }		
-		
-			
-		
-			
-		updateOutputURLs();
-	    },
-	    releaseHandler: function(event) {
+	        return values;
+	    }
 
-		if(selectionMode==true) { 
-		
-		    manifest_url = jQuery("#url").val();
-		    
-		    //took this out because it broke it when using an image url
-		    //var label = manifests[manifest_url].label.replace("'","&apos;").replace('"','&apos;');
-		    //console.log(label);
-
-		    var img_html = "<img alt='detail' src='"+thumbnail_url+"' data-manifest='"+manifest_url+"'/>";
-	    
-		    // add info to the selections array
-		    // creating an id would probably be good
-		    var selection_index = selections.push({"id":"", "manifest":manifest_url,"detail":crop_url,"html":img_html, "full":uncropped_url, "mode": "detail"})-1;
-		    
-		    //console.log(selections);
-		    
-		    // if any items in the tray are currently active, remove active class
-		    jQuery(".preview-item.active-item").removeClass('active-item'); 		    
+	    /**************************
+	     * if there is a manifest url var, load it
+	     *************************************************/
+	    var vars = getURLValues();
+	    if (typeof vars.manifest !== 'undefined') {
+	        var url = vars.manifest;
+	        jQuery("#url").val(url);
+	        //current.manifest = url;
+	        load(url);
+	    }
 
 
-		    //construct html of thumbnail in bottom tray
-    		    
-    		    var mirador_link = "https://mcgrawcenter.github.io/mirador/?manifest="+manifest_url+"&canvas="+outputs.canvas;
 
-		    var preview_item = "<div class='preview-item active-item' data-service='"+outputs.service+"' data-canvas='"+outputs.canvas+"' data-manifest='"+manifest_url+"' data-selection='"+selection_index+"'>\
-		    <div>"+img_html+"</div>\
+	    /**************************
+	     * tooltip
+	     *************************************************/
+
+	    tippy('#copy', {
+	        trigger: "click",
+	        content: "Copied",
+	        onShow(instance) {
+	            setTimeout(() => {
+	                instance.hide();
+	            }, 2000);
+	        }
+	    });
+
+	    tippy('.copyable', {
+	        trigger: "click",
+	        content: "Copied",
+	        onShow(instance) {
+	            setTimeout(() => {
+	                instance.hide();
+	            }, 2000);
+	        }
+	    });
+
+
+	    /**************************
+	     * adjust the height of the gallery to the size of the screen
+	     *************************************************/
+	    var h = jQuery(window).height();
+	    jQuery("#viewer").css("height", h);
+	    var e1 = jQuery(".url-element").height();
+	    var e2 = jQuery(".output-element").height();
+
+	    jQuery("#gallery").css("max-height", (h - 190));
+	    jQuery(window).resize(function() {
+	        jQuery("#viewer").css("height", jQuery(window).height());
+	    });
+
+
+
+
+
+
+
+
+
+
+
+
+	} // end init()
+
+
+
+	    /**************************
+	     * initialize OSD
+	     ********************/
+	    var viewer = OpenSeadragon({
+	        id: "viewer",
+	        prefixUrl: "assets/js/openseadragon/images/",
+	        tileSources: [],
+	        showFullPageControl: false,
+	        showRotationControl: true,
+	        minZoomLevel: 0.1
+	    });
+
+	    viewer.addHandler('rotate', function() {
+	        CT.current.rotation = viewer.viewport.getRotation();
+
+	        if (CT.current.rotation < 0) {
+	            CT.current.rotation = 360 + rotation;
+	        }
+	        if (CT.current.rotation == 360) {
+	            CT.current.rotation = 0;
+	        }
+
+	    });
+
+
+	    // draw overlays
+
+	    new OpenSeadragon.MouseTracker({
+
+	        element: viewer.element,
+	        pressHandler: function(event) {
+
+	            if (!CT.selectionMode) {
+	                return;
+	            }
+
+	            if (CT.overlayOn) {
+	                viewer.removeOverlay("overlay");
+	            }
+	            var overlayElement = document.createElement("div");
+	            overlayElement.id = "overlay";
+	            overlayElement.className = "highlight";
+
+	            var viewportPos = viewer.viewport.pointFromPixel(event.position);
+	            viewer.addOverlay({
+	                element: overlayElement,
+	                location: new OpenSeadragon.Rect(viewportPos.x, viewportPos.y, 0, 0)
+	            });
+	            CT.overlayOn = true;
+	            drag = {
+	                overlayElement: overlayElement,
+	                startPos: viewportPos
+	            };
+
+
+	        },
+	        dragHandler: function(event) {
+
+	            if (typeof drag === 'undefined') {
+	                return;
+	            }
+
+	            var viewportPos = viewer.viewport.pointFromPixel(event.position);
+
+	            var diffX = viewportPos.x - drag.startPos.x;
+	            var diffY = viewportPos.y - drag.startPos.y;
+
+	            var location = new OpenSeadragon.Rect(
+	                Math.min(drag.startPos.x, drag.startPos.x + diffX),
+	                Math.min(drag.startPos.y, drag.startPos.y + diffY),
+	                Math.abs(diffX),
+	                Math.abs(diffY)
+	            );
+
+	            var overlayHeight = jQuery("#overlay")[0].clientWidth;
+
+	            var w = viewer.tileSources[0].width;
+	            var h = viewer.tileSources[0].height;
+
+	            region = [
+	                Math.floor(location.x * w),
+	                Math.floor(location.y * w),
+	                Math.floor(location.width * w),
+	                Math.floor(location.height * w)
+	            ]
+	           
+
+	            // if the box goes outside the boundaries of the image
+
+	                if (region[0] < 0) { region[0] = 0;  }
+	                if (region[1] < 0) { region[1] = 0;  }
+	                if (region[0]+region[2] > w) { region[2] = w - region[0]; }
+	                if (region[1]+region[3] > h) { region[3] = h - region[1]; }
+
+
+	            // update the box    
+	            viewer.updateOverlay(drag.overlayElement, location);
+
+	            // get the outputs
+	            
+	            CT.outputs = {
+	                "manifest": CT.current.manifest,
+	                "canvas": CT.current.canvas,
+	                "service": CT.current.service,
+	                "version": CT.current.version,
+	                "large": CT.current.service + "/" + region.join(',') + "/1200,/" + CT.current.rotation + "/default.jpg",
+	                "small": CT.current.service + "/" + region.join(',') + "/300,/" + CT.current.rotation + "/default.jpg",
+	                "actual": CT.current.service + "/" + region.join(',') + "/" + overlayHeight + ",/" + CT.current.rotation + "/default.jpg",
+	                "html": ""
+	            }
+	            if (CT.current.version == 3) {
+	                CT.outputs.actual = CT.current.service + "/" + region.join(',') + "/max/" + CT.current.rotation + "/default.jpg";
+	            } else {
+	                CT.outputs.actual = CT.current.service + "/" + region.join(',') + "/full/" + CT.current.rotation + "/default.jpg";
+	            }
+	            CT.outputs.html = "<img alt='detail' src='" + CT.outputs.actual + "' data-manifest='" + CT.current.manifest + "'/>";
+
+	            updateOutputURLs();
+	        },
+	        releaseHandler: function(event) {
+
+	            if (CT.selectionMode == true) {
+
+	                var id = makeid();
+
+	                manifest_url = jQuery("#url").val();
+
+	                // add info to the selections array
+	                // creating an id would probably be good
+	                CT.selections[id] = CT.outputs;
+	                //var selection_index = CT.selections.push(CT.outputs)-1;
+
+	                // if any items in the tray are currently active, remove active class
+	                jQuery(".preview-item.active-item").removeClass('active-item');
+
+
+	                //construct html of thumbnail in bottom tray
+
+	                var mirador_link = "https://mcgrawcenter.github.io/mirador/?manifest=" + manifest_url + "&canvas=" + CT.outputs.canvas;
+
+	                var preview_item = "<div id='" + id + "' class='preview-item active-item' data-service='" + CT.outputs.service + "' data-canvas='" + CT.outputs.canvas + "' data-manifest='" + manifest_url + "'>\
+		    <div>" + CT.outputs.html + "</div>\
 		    <div class='selectcrop copyable' style='position:absolute;top:0px;left:0px;z-index:-100'>\
-		    <a href='"+mirador_link+"' title='detail image' target='_blank'>"+img_html+"</a>\
+		    <a href='" + CT.current.manifest + "' title='detail image' target='_blank'>" + CT.outputs.html + "</a>\
 		    </div>\
 		    <span class='preview-item-tools'>\
 		     <a href='#' class='copyable'><img src='assets/images/copy.svg' class='icon-sm'/></a>\
 		     <a href='#' class='preview-item-metadata'><img src='assets/images/info-circle-white.svg' class='icon-sm'/></a>\
-		     <a href='"+crop_url+"' class='preview-item-external' target='_blank'><img src='assets/images/external-white.svg' class='icon-sm'/></a>\
+		     <a href='" + CT.outputs.actual + "' class='preview-item-external' target='_blank'><img src='assets/images/external-white.svg' class='icon-sm'/></a>\
 		     <a href='#' class='preview-item-close'><img src='assets/images/x-white.svg' class='icon-sm'/></a></span></div>";
 
-		    jQuery("#preview").find('.preview-tray').prepend(preview_item);
-		    
-		    tippy('.copyable', {
-			  trigger: "click",
-			  content: "Copied",
-			  placement: "left",
-			  onShow(instance) {
-			    setTimeout(() => {
-			      instance.hide();
-			    }, 2000);
-			  }
-			});
-		    
-		    jQuery("#preview").addClass('shown').show();
-		    
-		    // revert output mode back to detail
-		    jQuery("#detail").prop("checked", true);
-		    jQuery("#output").attr('data-mode','detail');
-	  	    //jQuery("#output").val(selections[0].detail);
+	                jQuery("#preview").find('.preview-tray').prepend(preview_item);
 
-		    jQuery("#crop").removeClass("activated");
-		    selectionMode = false;
-		    viewer.setMouseNavEnabled(true);
-		    if (overlay) {
-			    viewer.removeOverlay("overlay");
-		    }
-		    
-		    outputs = { 
-		      'manifest':manifest_url,
-		      'canvas': canvas,
-		      'service': service,
-		      'detail':crop_url,
-		      'full':uncropped_url,
-		      'html':img_html
-		    }
-		    jQuery("#output").attr('data-mode','detail');
-		    setMode('full');
-		    updateOutputURLs();
-		    //console.log(outputs);
-		} 
 
-		drag = null;
+	                tippy('.copyable', {
+	                    trigger: "click",
+	                    content: "Copied",
+	                    placement: "left",
+	                    onShow(instance) {
+	                        setTimeout(() => {
+	                            instance.hide();
+	                        }, 2000);
+	                    }
+	                });
 
+	                jQuery("#preview").addClass('shown').show();
+
+	                // revert output mode back to actual
+	                jQuery("#actual").prop("checked", true);
+	                jQuery("#output").attr('data-mode', 'actual');
+
+	                jQuery("#crop").removeClass("activated");
+	                CT.selectionMode = false;
+	                viewer.setMouseNavEnabled(true);
+	                if (overlay) {
+	                    viewer.removeOverlay("overlay");
+	                }
+
+	                jQuery("#output").attr('data-mode', 'actual');
+	                setMode('large');
+	                updateOutputURLs();
+	            }
+
+	            drag = null;
+
+	        }
+	    });
+
+
+	/*************************
+	 * activate or de-activate crop mode
+	 ***********************************/
+
+	jQuery('#crop').click(function() {
+
+	    if (jQuery("#crop").hasClass("activated")) {
+	        jQuery("#crop").removeClass("activated");
+	        CT.selectionMode = false;
+	        viewer.setMouseNavEnabled(true);
+	    } else {
+	        jQuery("#crop").addClass("activated");
+	        CT.selectionMode = true;
+	        viewer.setMouseNavEnabled(false);
 	    }
+
 	});
 
 
 
-    
-	/*************************
-	* activate or de-activate crop mode
-	***********************************/
-	
-	jQuery('#crop').click( function() {  
+	/******************************
+	 *  The three output textarea modes
+	 ********************************/
 
-	  if(jQuery("#crop").hasClass("activated")) { 
-	    jQuery("#crop").removeClass("activated");
-	    selectionMode = false;
-	    viewer.setMouseNavEnabled(true);
-	  }
-	  else { 
-	    jQuery("#crop").addClass("activated");
-	    selectionMode = true;
-	    viewer.setMouseNavEnabled(false);
-	  }
-	  
-	}); 	
-    
-    
-    
-    
-	/*************************
-	* get the url vars
-	***********************************/
-
-	function getURLValues() {
-
-	  var search = window.location.search.replace(/^\?/,'').replace(/\+/g,' ');
-	  var values = {};
-
-	  if (search.length) {
-	    var part, parts = search.split('&');
-
-	    for (var i=0, iLen=parts.length; i<iLen; i++ ) {
-	      part = parts[i].split('=');
-	      values[part[0]] = window.decodeURIComponent(part[1]);
-	    }
-	  }
-	  return values;
-	}
-
-
-	// if there is a manifest url var, load it
-
-	var vars = getURLValues();
-	if(typeof vars.manifest  !== 'undefined') { 
-	  var url = vars.manifest;
-	  jQuery("#url").val(url);
-	  manifest_url = url;
-          load(url);
-	 }
-	
-	
-	
-	
-	
-	
-	
-
-	
-		 
-	 
-	/*************************
-	* show / hide preview bar
-	***********************************/
-	
-	jQuery(".preview-hide").click(function() {
-	  if(jQuery("#preview").hasClass('shown')) { 
-	     jQuery("#preview").removeClass('shown');
-	     jQuery(".preview-hide svg").removeClass('shown');
-	   }
-	  else {
-	    jQuery("#preview").addClass('shown');
-	    jQuery(".preview-hide svg").addClass('shown');
-	  }
+	jQuery(".setmode").click(function(e) {
+	    var mode = jQuery(this).attr("data-mode");
+	    setMode(mode);
 	});
-	
-	
+
+
+
+
 	/******************
-	* click on a preview item in the tray
-	*************************************************/
-	
-	jQuery(document).on("click",".preview-item",function(e){
+	 * select a gallery item
+	 ***********************************************************/
 
-	  // highlight this gallery item
-	  jQuery(".preview-item").removeClass('active-item');
-	  jQuery(this).addClass("active-item");
-	    
-	  var manifest_url = jQuery(this).attr('data-manifest');
+	jQuery(document).on("click", ".gallery-item", function(e) {
 
-	  var selection_index = jQuery(this).attr('data-selection');
-	  var service = jQuery(this).attr('data-service');
-	  
-	  jQuery(".gallery-item").removeClass('gallery-item-active');
-	  jQuery(".gallery-item[data-service='"+service+"']").addClass('gallery-item-active');
+	    CT.current.manifest = jQuery(this).attr('data-manifest');
+	    CT.current.canvas = jQuery(this).attr('data-canvas');
+	    CT.current.service = jQuery(this).attr('data-service');
+	    CT.current.version = jQuery(this).attr('data-version');
 
-	  outputs = { 
-	    'manifest':manifest_url,
-	    'canvas': canvas,
-	    'service':service,
-	    'detail':selections[selection_index]['detail'],
-	    'full':selections[selection_index]['full'],
-	    'html':selections[selection_index]['html']
-	  }
-	  
-	  //re-populate the url text field with the manifest url for this detail
-	  var previous_manifest_url = jQuery("#url").val();
-	  
-	  //var selection_index = jQuery(this).attr('data-selection');
-	  //var current_manifest_url = selections[selection_index].manifest;
-	  jQuery("#url").val(manifest_url);
-	  // if we are changing to a different manifest, reload the gallery of thumbs
-	  if(previous_manifest_url != manifest_url) {
-	      load(manifest_url);
-	  }
-	  
-	  //populate the output textarea with whatever mode is currently selected
-	  //var mode = jQuery("#output").attr('data-mode');
-	  updateOutputURLs();
-	  
+	    // highlight this gallery item
+	    jQuery(".gallery-item").removeClass('gallery-item-active');
+	    jQuery(this).addClass('gallery-item-active');
+
+	    // un-hilight any tray thumbs that might be highlighted
+	    jQuery(".preview-item").removeClass('active-item');
+
+
+	    jQuery("#crop").removeClass("activated");
+	    CT.selectionMode = false;
+	    viewer.setMouseNavEnabled(true);
+
+
+	    jQuery("#image").prop("checked", true);
+
+	    jQuery.get(CT.current.service + "/info.json", function(data) {
+
+	        viewer.open(data);
+	        viewer.tileSources.unshift(data);
+
+	        // find out if this is a v2 or v3 image server
+	        // to determine whether we should use 'full' or 'max'
+	        if (typeof data['@context'] != 'undefined') {
+	            if (data['@context'] == 'http://iiif.io/api/image/3/context.json') {
+	                CT.current.version = 3;
+	            } else {
+	                CT.current.version = 2;
+	            }
+	        } else {
+	            CT.current.version = 2;
+	        }
+
+
+	        // i had orignally populate the output textarea with the full url when one clicked on the gallery item
+	        //if(CT.max_or_full == 'max') { var full_size = CT.current.service+"/full/max/0/default.jpg"; }
+	        //else { var full_size = CT.current.service+"/full/full/0/default.jpg"; }
+
+	        var zoom = viewer.viewport.getZoom();
+	        var width = viewer.tileSources[0].width;
+	        var adjustedwidth = parseInt((width * zoom) * 0.18);
+	        var actual_size = CT.current.service + "/full/" + adjustedwidth + ",/0/default.jpg";
+
+
+	        CT.current.rotation = 0;
+	        CT.current.region = "full",
+	            CT.current.size = adjustedwidth + ",";
+
+
+	        // update the urls that appear in the output textarea
+	        CT.outputs = {
+	            "manifest": CT.current.manifest,
+	            "canvas": CT.current.canvas,
+	            "service": CT.current.service,
+	            "large": CT.current.service + "/full/1200,/0/default.jpg",
+	            "small": CT.current.service + "/full/300,/0/default.jpg",
+	            "actual": CT.current.service + "/full/full/0/default.jpg",
+	            "html": ""
+	        }
+	        if (CT.current.version == 3) {
+	            CT.outputs.actual = CT.current.service + "/full/max/0/default.jpg";
+	        }
+
+	        setMode('large');
+	        
+	        CT.outputs.html = "<img alt='detail' src='" + CT.outputs.actual + "' data-manifest='" + CT.current.manifest + "'/>";
+	        
+	        updateOutputURLs();
+
+
+	    });
+
+	    CT.mode = 'large';
+	    e.preventDefault();
+	});
+
+
+
+
+
+
+
+	/*********************************
+	 * ACTIONS
+	 *******************************/
+
+	// submit a url
+	jQuery("#submit").click(function() {
+	    var url = jQuery("#url").val();
+	    CT.current.manifest = url;
+	    load(url);
 	});
 	
-
+	
 	
 	/******************************
-	*  The three output textarea modes
-	********************************/
-
-
-	
-	jQuery("#detail").click(function(e){
-	   setMode('detail');
-	   //set the val of the output texarea
-	   //jQuery("#output").val(outputs.detail).attr('data-mode','detail');
-	   //set the href of the external link if there is a highlighted crop item
-	   //jQuery(".preview-item.active-item").find(".preview-item-external").attr('href',outputs.detail);
-	});	
-	
-	jQuery("#full").click(function(e){
-	  setMode('full');
-	  //jQuery("#output").val(outputs.full).attr('data-mode','full');
-	  //jQuery(".preview-item.active-item").find(".preview-item-external").attr('href',outputs.full);
-	});
-
-
-	jQuery("#html").click(function(e){
-	  setMode('html');
-	  //jQuery("#output").val(outputs.html).attr('data-mode','html');
-	  //jQuery(".preview-item.active-item").find(".preview-item-external").attr('href',outputs.detail);
-	});
-	
-	
-	
-	/******************************
-	*  Set the mode
-	********************************/
-	
-	
+	 *  Set the mode
+	 ********************************/
 	function setMode(mode) {
-	  jQuery("input[id='"+mode+"']").prop("checked", true);
-	  jQuery("#output").attr("data-mode",mode);
-	  console.log(outputs);
-	  updateOutputURLs();
-	  jQuery(".preview-item.active-item").find(".preview-item-external").attr('href',outputs[mode]);
-	}
-	
-	
-	
-	function updateOutputURLs() {
-	  var mode = jQuery("#output").attr("data-mode");
-	  jQuery("#output").val(outputs[mode]);
-	  jQuery("#copy").show();  
+	    jQuery("input[id='" + mode + "']").prop("checked", true);
+	    jQuery("#output").attr("data-mode", mode);
+	    updateOutputURLs();
+	    jQuery(".preview-item.active-item").find(".preview-item-external").attr('href', CT.outputs[mode]);
 	}	
-	
+
+
+
+
+	/*************************
+	 * show / hide preview bar
+	 ***********************************/
+
+	jQuery(".preview-hide").click(function() {
+	    if (jQuery("#preview").hasClass('shown')) {
+	        jQuery("#preview").removeClass('shown');
+	        jQuery("#preview-tray-icon").removeClass('shown');
+	    } else {
+	        jQuery("#preview").addClass('shown');
+	        jQuery(".preview-hide svg").addClass('shown');
+	        jQuery("#preview-tray-icon").addClass('shown');
+	    }
+	});
+
+	/************************************
+	 * 
+	 *************************************/
+	function updateOutputURLs() {
+	    var mode = jQuery("#output").attr("data-mode");
+	    jQuery("#output").val(CT.outputs[mode]);
+	    jQuery("#copy").show();
+	}
+
+	/************************************
+	* Load a manifest
+	* to do: if a manifest uses static images, we cannot use this tool
+	* we need to alert the user
+	* an example manifest with static jpgs at https://discover.york.ac.uk/ark:/36941/13192/presentation/3/manifest 
+	*************************************/
+	function load(url) {
+
+
+	    // UCLA has an 'ark:' in their urls that need to be encoded
+	    url = url.replace(/ark:\/(.*?)\//, function(r, a) {
+	        return "ark%3A%2F" + a + "%2F"
+	    });
+
+	    // if this is an Internet Archive URL
+	    // convert it to a manifest
+	    if (url.indexOf("archive.org") > 0 && url.indexOf("details") > 0) {
+	        url = internetArchive2Manifest(url);
+	    }
+
+
+	    // if this is a IIIF image url, parse it
+	    if (url.search(/\/([0-9]{1,3})\/(color|gray|bitonal|default)\.(png|jpg)/) > 0) {
+	        parseSingleImage(url);
+	    } else {
+
+	        const vault = new IIIFVault.Vault();
+	        vault.loadManifest(url).then(async(manifest) => {
+
+
+
+	            var label = getFirstValue(manifest.label);
+
+	            var metadata = [];
+	            if (typeof manifest.metadata != undefined) {
+	                manifest.metadata.forEach(function(meta) {
+	                    var meta_label = getFirstValue(meta.label);
+	                    var meta_value = getFirstValue(meta.value);
+	                    CT.metadata.push({
+	                        'label': meta_label,
+	                        'value': meta_value
+	                    });
+	                });
+	            }
+
+	            var o = {
+	                'label': label,
+	                'metadata': metadata,
+	                'items': []
+	            }
+	            CT.manifests[url] = o;
+
+
+	            var items = vault.get(manifest.items);
+
+	            var type = manifest.type;
+
+	            switch (type) {
+
+	                case 'Collection':
+	                    items.forEach(function(item) {
+	                        load(item.id);
+	                    });
+	                    break;
+
+	                case 'Manifest':
+
+	                    var items = vault.get(items);
+
+	                    items.forEach((it) => {
+	                        var canvas = it.id;
+	                        var label = getFirstValue(it.label);
+	                        var service = "error";
+	                        if (it.items[0]) {
+	                            var i = vault.get(it.items[0]);
+	                            if (i.items[0]) {
+	                                var j = vault.get(i.items[0]);
+	                                if (j.body[0]) {
+	                                    var k = vault.get(j.body[0]);
+	                                    if (k.service[0]) {
+	                                        var service = "";
+	                                        var version = 2;
+
+	                                        if (typeof k.service[0]['@id'] != 'undefined') {
+	                                            service = k.service[0]['@id'];
+	                                            version = 2;
+	                                        } else {
+	                                            service = k.service[0].id;
+	                                            version = 3;
+	                                        }
+	                                    }
+	                                }
+	                            }
+	                        }
+
+	                        var x = {
+	                            'manifest': url,
+	                            'service': service,
+	                            'canvas': canvas,
+	                            'label': label,
+	                            'version': version
+	                        }
+
+	                        CT.manifests[url].items.push(x);
+
+	                    });
+
+	                    buildGallery(url);
+
+	            }
+
+	        });
+
+	    } // end if/else
+
+	}
 	
 	/****************************
 	* remove item from preview bar
@@ -502,8 +601,8 @@
 	jQuery(document).on("click", ".preview-item-close", function(e) {
 	  jQuery(this).parent().parent().remove();
 	  e.preventDefault();
-	});	 
-    
+	});
+	
 	/****************************
 	* click on info icon in preview item
 	*****************************************/
@@ -512,16 +611,13 @@
 	
 	  var manifest = jQuery(this).parent().parent().attr('data-manifest');
 	  var canvas = jQuery(this).parent().parent().attr('data-canvas');
-	  
-	  //console.log("Manifest: "+manifest);
-	  //console.log("Canvas: "+canvas);
-	  //console.log("Region: "+region.join(','));
-	  
+
+	  console.log(CT.current);
 	  
 	   // update the urls that go in the 'copy' textarea
 	   updateOutputURLs();
 
-	   var  o = manifests[manifest];
+	   var o = CT.manifests[manifest];
 
 	   var html = "";
 	   html += "<p><label for='title'>Title:</label> <span id='title'>"+o.label+"</span></p>";
@@ -542,5 +638,195 @@
 	   jQuery('#modal').modal();
 
 	  e.preventDefault();
-	});	
+	});		
 
+
+	/******************
+	 * click on a preview item in the tray
+	 *************************************************/
+
+	jQuery(document).on("click", ".preview-item", function(e) {
+
+	    // highlight this gallery item
+	    jQuery(".preview-item").removeClass('active-item');
+	    jQuery(this).addClass("active-item");
+
+	    var id = jQuery(this).attr('id');
+
+	    jQuery(".gallery-item").removeClass('gallery-item-active');
+	    jQuery(".gallery-item[data-service='" + CT.selections[id].service + "']").addClass('gallery-item-active');
+
+	    //re-populate the url text field with the manifest url for this detail
+	    var previous_manifest_url = jQuery("#url").val();
+
+	    jQuery("#url").val(CT.selections[id].manifest);
+
+	    // if we are changing to a different manifest, reload the gallery of thumbs
+
+	    if (previous_manifest_url != CT.selections[id].manifest) {
+	        load(CT.selections[id].manifest);
+	    }
+
+	    //populate the output textarea with whatever mode is currently selected
+	    CT.outputs = CT.selections[id];
+	    updateOutputURLs();
+	    //buildGallery(CT.selections[id].manifest);
+	});
+
+
+
+	/************************************
+	 * 
+	 *********************************/
+
+	function parseMetadata(metadata) {
+
+	    var a = [];
+
+	    // then get the metadata
+	    jQuery.each(metadata, function(i, v) {
+	        var label = getFirstValue(v.label);
+	        var value = getFirstValue(v.value);
+	        var r = {
+	            "label": label,
+	            "value": value
+	        }
+	        a.push(r);
+	    });
+	    return a;
+
+	}
+
+
+	/************************************
+	 * 
+	 *********************************/
+
+	function getFirstValue(o) {
+	    if (typeof o === "object") {
+	        var x = Object.values(o)[0];
+	        if (typeof x == 'object') {
+	            return Object.values(x)[0];
+	        } else {
+	            return x;
+	        }
+	    } else if (typeof o === "array") {
+	        return o.label[0];
+	    } else if (typeof o === "string") {
+	        return o;
+	    } else {
+	        return "";
+	    }
+	}
+
+
+	/************************************
+	 * 
+	 *********************************/
+
+	function buildGallery(id) {
+
+	    jQuery("#gallery").empty();
+
+
+	    var html = "<div>";
+	    html += "<p class='gallery-manifest-label'>" + CT.manifests[id].label + "</p>";
+	    html += "<ul>";
+
+	    jQuery.each(CT.manifests[id].items, function(i, v) {
+	        if (v.service != 'error') {
+	            html += "<li class='gallery-item' data-manifest='" + v.manifest + "' data-canvas='" + v.canvas + "' data-service='" + v.service + "' data-version='" + v.version + "' alt='image " + i + "'><img alt='" + v.label + "' src='" + v.service + "/full/,200/0/default.jpg'/><div class='gallery-item-label'>" + v.label + " </div></li>";
+	        } else {
+	            html += "<li class='gallery-item' data-manifest='" + v.manifest + "' data-canvas='" + v.canvas + "' data-service='" + v.service + "' data-version='" + v.version + "' alt='image " + i + "'><div class='gallery-item-label'>" + v.label + " </div></li>";
+	        }
+	    });
+	    html += "</ul>";
+	    html += "</div>";
+	    jQuery("#gallery").append(html);
+	}
+
+
+
+
+
+
+
+	function makeid() {
+	    let result = '';
+	    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+	    const charactersLength = characters.length;
+	    let counter = 0;
+	    while (counter < 12) {
+	        result += characters.charAt(Math.floor(Math.random() * charactersLength));
+	        counter += 1;
+	    }
+	    return result;
+	}
+
+
+
+
+	function copytext() {
+	    var copytext = document.getElementById("output");
+	    copytext.select();
+	    copytext.setSelectionRange(0, 99999); // For mobile devices
+	    navigator.clipboard.writeText(copytext.value);
+	}
+
+
+
+	//https://stackoverflow.com/questions/33175909/copy-image-to-clipboard
+	//Cross-browser function to select content
+
+	function SelectText(element) {
+	    var doc = document;
+	    if (doc.body.createTextRange) {
+	        var range = document.body.createTextRange();
+	        range.moveToElementText(element);
+	        range.select();
+	    } else if (window.getSelection) {
+	        var selection = window.getSelection();
+	        var range = document.createRange();
+	        range.selectNodeContents(element);
+	        selection.removeAllRanges();
+	        selection.addRange(range);
+	    }
+	}
+	jQuery(document).on("click", ".copyable", function(e) {
+	    var containerDiv = jQuery(this).parent().parent().find(".selectcrop");
+	    //Make the container Div contenteditable
+	    containerDiv.attr("contenteditable", true);
+	    //Select the image
+	    SelectText(containerDiv.get(0));
+	    //Execute copy Command
+	    //Note: This will ONLY work directly inside a click listener
+	    document.execCommand('copy');
+	    //Unselect the content
+	    window.getSelection().removeAllRanges();
+	    //Make the container Div uneditable again
+	    containerDiv.removeAttr("contenteditable");
+	    //Success!!
+	    console.log("image copied!");
+	});
+	
+  /************************************
+  * 
+  *************************************/
+  function internetArchive2Manifest (url) {
+     var parts = url.split("/");
+     for(var x=0;x<=parts.length;x++) { 
+       if(parts[x] == 'details') { 
+         var ia_id = parts[x+1];
+         return "https://iiif.archive.org/iiif/"+ia_id+"/manifest.json";
+       }
+     }     
+  }
+
+  /************************************
+  * 
+  *************************************/
+  function wikimediaCommons2Manifest (url) {  
+    var parts = url.split("File:");
+    return "https://iiif.juncture-digital.org/wc:"+parts[1]+"/manifest.json";  
+  }
+  	

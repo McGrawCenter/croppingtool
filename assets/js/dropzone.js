@@ -24,28 +24,27 @@ function getQueryVariable(urlstr) {
 
 
 
-
 window.addEventListener("dragenter", function (e) {
-    //document.querySelector("#dropzone").style.display = "block";
+    document.querySelector("#dropzone").classList.add("shown");
     e.preventDefault();
 });
 
 
 window.addEventListener("dragover", function (e) {
-    //document.querySelector("#dropzone").style.display = "block";
+    document.querySelector("#dropzone").classList.add("shown");
     e.preventDefault();
 });
 
 
 window.addEventListener("dragleave", function (e) {
-    //document.querySelector("#dropzone").style.display = "none";
+    document.querySelector("#dropzone").classList.remove("shown");
     e.preventDefault();
 });
 
 window.addEventListener("drop", function (e) {
 
     e.preventDefault();
-    //document.querySelector("#dropzone").style.display = "none";
+    document.querySelector("#dropzone").classList.remove("shown");
     var d = e.dataTransfer;
     var url_str = getQueryVariable(d.getData("text"));
     jQuery("#url").val(url_str);

@@ -139,22 +139,6 @@ input[type='text'], textarea {
 
 
 
-.overlay {
-  display: none;
-  position: absolute;
-  top: 0px;
-  left: 0px;
-  right: 0px;
-  bottom: 0px;
-  /*background: rgba(0,50,120,0.8);*/
-  background:goldenrod;
-  z-index: 9999;
-  font-size: 3em;
-  color: white;
-  text-align: center;
-  padding-top: 20%;
-}
- 
  
 /************ Preview bar ***************/ 
  
@@ -259,5 +243,39 @@ input[type='text'], textarea {
 #mode input[type="radio"]:checked + span{ font-weight: bold;background:#1967d2;color:white;border-radius:0 0 3px 3px; } 
 
 
+#dropzone {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  right: 0px;
+  z-index: 999;
+  text-align: center;
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  font-size: 3em;
+  color: white;
+}
+#dropzone.shown {
+  display: flex;
+  bottom: 0px;
+  z-index: 1040;
+  background: rgba(30,100,255,0.9);
+}
 
-
+/*
+.overlay {
+  display: none;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  right: 0px;
+  bottom: 0px;
+  background:goldenrod;
+  z-index: 9999;
+  font-size: 3em;
+  color: white;
+  text-align: center;
+  padding-top: 20%;
+}
+*/
