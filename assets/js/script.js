@@ -726,7 +726,7 @@
 
 	function buildGallery(id) {
 
-	    jQuery("#gallery").empty();
+	    //jQuery("#gallery").empty();
 
 
 	    var html = "<div>";
