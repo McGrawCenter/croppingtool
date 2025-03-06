@@ -56,6 +56,7 @@
 	        var url = vars.manifest;
 	        jQuery("#url").val(url);
 	        //current.manifest = url;
+	        jQuery("#gallery").empty();
 	        load(url);
 	    }
 
@@ -435,6 +436,7 @@
 	jQuery("#submit").click(function() {
 	    var url = jQuery("#url").val();
 	    CT.current.manifest = url;
+	    jQuery("#gallery").empty();
 	    load(url);
 	});
 	
@@ -503,92 +505,28 @@
 	        parseSingleImage(url);
 	    } else {
 
-	        const vault = new IIIFVault.Vault();
-	        vault.loadManifest(url).then(async(manifest) => {
+
+	       var manifest = new IIIFParser();
+	       manifest.load(url);
+	       
+	       //console.log(manifest);
+	       
+	       switch(manifest.type) {
+	         case "Collection":
+	             manifest.items.forEach(function(item) {
+	                 load(item.id);
+	             });
+	         break;
+	         case "Manifest":
+	             CT.manifests[url] = manifest;
+	             buildGallery(url);
+	         break;	         
+	       }
 
 
 
-	            var label = getFirstValue(manifest.label);
-
-	            var metadata = [];
-	            if (typeof manifest.metadata != undefined) {
-	                manifest.metadata.forEach(function(meta) {
-	                    var meta_label = getFirstValue(meta.label);
-	                    var meta_value = getFirstValue(meta.value);
-	                    CT.metadata.push({
-	                        'label': meta_label,
-	                        'value': meta_value
-	                    });
-	                });
-	            }
-
-	            var o = {
-	                'label': label,
-	                'metadata': metadata,
-	                'items': []
-	            }
-	            CT.manifests[url] = o;
 
 
-	            var items = vault.get(manifest.items);
-
-	            var type = manifest.type;
-
-	            switch (type) {
-
-	                case 'Collection':
-	                    items.forEach(function(item) {
-	                        load(item.id);
-	                    });
-	                    break;
-
-	                case 'Manifest':
-
-	                    var items = vault.get(items);
-
-	                    items.forEach((it) => {
-	                        var canvas = it.id;
-	                        var label = getFirstValue(it.label);
-	                        var service = "error";
-	                        if (it.items[0]) {
-	                            var i = vault.get(it.items[0]);
-	                            if (i.items[0]) {
-	                                var j = vault.get(i.items[0]);
-	                                if (j.body[0]) {
-	                                    var k = vault.get(j.body[0]);
-	                                    if (k.service[0]) {
-	                                        var service = "";
-	                                        var version = 2;
-
-	                                        if (typeof k.service[0]['@id'] != 'undefined') {
-	                                            service = k.service[0]['@id'];
-	                                            version = 2;
-	                                        } else {
-	                                            service = k.service[0].id;
-	                                            version = 3;
-	                                        }
-	                                    }
-	                                }
-	                            }
-	                        }
-
-	                        var x = {
-	                            'manifest': url,
-	                            'service': service,
-	                            'canvas': canvas,
-	                            'label': label,
-	                            'version': version
-	                        }
-
-	                        CT.manifests[url].items.push(x);
-
-	                    });
-
-	                    buildGallery(url);
-
-	            }
-
-	        });
 
 	    } // end if/else
 
@@ -725,9 +663,9 @@
 	 *********************************/
 
 	function buildGallery(id) {
-
-	    //jQuery("#gallery").empty();
-
+	
+	    console.log(id);
+	    console.log(CT.manifests[id]);
 
 	    var html = "<div>";
 	    html += "<p class='gallery-manifest-label'>" + CT.manifests[id].label + "</p>";
@@ -742,6 +680,7 @@
 	    });
 	    html += "</ul>";
 	    html += "</div>";
+	    
 	    jQuery("#gallery").append(html);
 	}
 
