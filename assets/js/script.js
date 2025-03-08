@@ -1,3 +1,5 @@
+
+
 	var CT = {
 	    'manifests': [],
 	    'metadata': [],
@@ -18,9 +20,6 @@
 	        'size': 'full'
 	    }
 	}
-
-
-
 
 
 
@@ -55,36 +54,12 @@
 	    if (typeof vars.manifest !== 'undefined') {
 	        var url = vars.manifest;
 	        jQuery("#url").val(url);
-	        //current.manifest = url;
+
 	        jQuery("#gallery").empty();
 	        load(url);
 	    }
 
 
-
-	    /**************************
-	     * tooltip
-	     *************************************************/
-
-	    tippy('#copy', {
-	        trigger: "click",
-	        content: "Copied",
-	        onShow(instance) {
-	            setTimeout(() => {
-	                instance.hide();
-	            }, 2000);
-	        }
-	    });
-
-	    tippy('.copyable', {
-	        trigger: "click",
-	        content: "Copied",
-	        onShow(instance) {
-	            setTimeout(() => {
-	                instance.hide();
-	            }, 2000);
-	        }
-	    });
 
 
 	    /**************************
@@ -103,159 +78,161 @@
 
 
 
-
-
-
-
-
-
-
-
 	} // end init()
 
 
 
-	    /**************************
-	     * initialize OSD
-	     ********************/
-	    var viewer = OpenSeadragon({
-	        id: "viewer",
-	        prefixUrl: "assets/js/openseadragon/images/",
-	        tileSources: [],
-	        showFullPageControl: false,
-	        showRotationControl: true,
-	        minZoomLevel: 0.1
-	    });
+	/**************************
+	 * initialize OSD
+	 ********************/
+	var viewer = OpenSeadragon({
+	    id: "viewer",
+	    prefixUrl: "assets/js/openseadragon/images/",
+	    tileSources: [],
+	    showFullPageControl: false,
+	    showRotationControl: true,
+	    minZoomLevel: 0.1
+	});
 
-	    viewer.addHandler('rotate', function() {
-	        CT.current.rotation = viewer.viewport.getRotation();
+	viewer.addHandler('rotate', function() {
+	    CT.current.rotation = viewer.viewport.getRotation();
 
-	        if (CT.current.rotation < 0) {
-	            CT.current.rotation = 360 + rotation;
+	    if (CT.current.rotation < 0) {
+	        CT.current.rotation = 360 + rotation;
+	    }
+	    if (CT.current.rotation == 360) {
+	        CT.current.rotation = 0;
+	    }
+
+	});
+
+
+	/*************************
+	 * Cropping overlay
+	 ***********************************/
+
+	new OpenSeadragon.MouseTracker({
+
+	    element: viewer.element,
+	    pressHandler: function(event) {
+
+	        if (!CT.selectionMode) {
+	            return;
 	        }
-	        if (CT.current.rotation == 360) {
-	            CT.current.rotation = 0;
+
+	        if (CT.overlayOn) {
+	            viewer.removeOverlay("overlay");
+	        }
+	        var overlayElement = document.createElement("div");
+	        overlayElement.id = "overlay";
+	        overlayElement.className = "highlight";
+
+	        var viewportPos = viewer.viewport.pointFromPixel(event.position);
+	        viewer.addOverlay({
+	            element: overlayElement,
+	            location: new OpenSeadragon.Rect(viewportPos.x, viewportPos.y, 0, 0)
+	        });
+	        CT.overlayOn = true;
+	        drag = {
+	            overlayElement: overlayElement,
+	            startPos: viewportPos
+	        };
+
+
+	    },
+	    dragHandler: function(event) {
+
+	        if (typeof drag === 'undefined') {
+	            return;
 	        }
 
-	    });
+	        var viewportPos = viewer.viewport.pointFromPixel(event.position);
+
+	        var diffX = viewportPos.x - drag.startPos.x;
+	        var diffY = viewportPos.y - drag.startPos.y;
+
+	        var location = new OpenSeadragon.Rect(
+	            Math.min(drag.startPos.x, drag.startPos.x + diffX),
+	            Math.min(drag.startPos.y, drag.startPos.y + diffY),
+	            Math.abs(diffX),
+	            Math.abs(diffY)
+	        );
+
+	        var overlayHeight = jQuery("#overlay")[0].clientWidth;
+
+	        var w = viewer.tileSources[0].width;
+	        var h = viewer.tileSources[0].height;
+
+	        region = [
+	            Math.floor(location.x * w),
+	            Math.floor(location.y * w),
+	            Math.floor(location.width * w),
+	            Math.floor(location.height * w)
+	        ]
 
 
-	    // draw overlays
+	        // if the box goes outside the boundaries of the image
 
-	    new OpenSeadragon.MouseTracker({
-
-	        element: viewer.element,
-	        pressHandler: function(event) {
-
-	            if (!CT.selectionMode) {
-	                return;
-	            }
-
-	            if (CT.overlayOn) {
-	                viewer.removeOverlay("overlay");
-	            }
-	            var overlayElement = document.createElement("div");
-	            overlayElement.id = "overlay";
-	            overlayElement.className = "highlight";
-
-	            var viewportPos = viewer.viewport.pointFromPixel(event.position);
-	            viewer.addOverlay({
-	                element: overlayElement,
-	                location: new OpenSeadragon.Rect(viewportPos.x, viewportPos.y, 0, 0)
-	            });
-	            CT.overlayOn = true;
-	            drag = {
-	                overlayElement: overlayElement,
-	                startPos: viewportPos
-	            };
+	        if (region[0] < 0) {
+	            region[0] = 0;
+	        }
+	        if (region[1] < 0) {
+	            region[1] = 0;
+	        }
+	        if (region[0] + region[2] > w) {
+	            region[2] = w - region[0];
+	        }
+	        if (region[1] + region[3] > h) {
+	            region[3] = h - region[1];
+	        }
 
 
-	        },
-	        dragHandler: function(event) {
+	        // update the box    
+	        viewer.updateOverlay(drag.overlayElement, location);
 
-	            if (typeof drag === 'undefined') {
-	                return;
-	            }
+	        // get the outputs
 
-	            var viewportPos = viewer.viewport.pointFromPixel(event.position);
+	        CT.outputs = {
+	            "manifest": CT.current.manifest,
+	            "canvas": CT.current.canvas,
+	            "service": CT.current.service,
+	            "version": CT.current.version,
+	            "large": CT.current.service + "/" + region.join(',') + "/1200,/" + CT.current.rotation + "/default.jpg",
+	            "small": CT.current.service + "/" + region.join(',') + "/,300/" + CT.current.rotation + "/default.jpg",
+	            "actual": CT.current.service + "/" + region.join(',') + "/" + overlayHeight + ",/" + CT.current.rotation + "/default.jpg",
+	            "html": ""
+	        }
+	        if (CT.current.version == 3) {
+	            CT.outputs.actual = CT.current.service + "/" + region.join(',') + "/max/" + CT.current.rotation + "/default.jpg";
+	        } else {
+	            CT.outputs.actual = CT.current.service + "/" + region.join(',') + "/full/" + CT.current.rotation + "/default.jpg";
+	        }
+	        CT.outputs.html = "<img alt='detail' src='" + CT.outputs.small + "' data-manifest='" + CT.current.manifest + "'/>";
 
-	            var diffX = viewportPos.x - drag.startPos.x;
-	            var diffY = viewportPos.y - drag.startPos.y;
+	        updateOutputURLs();
+	    },
+	    releaseHandler: function(event) {
 
-	            var location = new OpenSeadragon.Rect(
-	                Math.min(drag.startPos.x, drag.startPos.x + diffX),
-	                Math.min(drag.startPos.y, drag.startPos.y + diffY),
-	                Math.abs(diffX),
-	                Math.abs(diffY)
-	            );
+	        if (CT.selectionMode == true) {
 
-	            var overlayHeight = jQuery("#overlay")[0].clientWidth;
+	            var id = makeid();
 
-	            var w = viewer.tileSources[0].width;
-	            var h = viewer.tileSources[0].height;
+	            manifest_url = jQuery("#url").val();
 
-	            region = [
-	                Math.floor(location.x * w),
-	                Math.floor(location.y * w),
-	                Math.floor(location.width * w),
-	                Math.floor(location.height * w)
-	            ]
-	           
+	            // add info to the selections array
+	            // creating an id would probably be good
+	            CT.selections[id] = CT.outputs;
+	            //var selection_index = CT.selections.push(CT.outputs)-1;
 
-	            // if the box goes outside the boundaries of the image
-
-	                if (region[0] < 0) { region[0] = 0;  }
-	                if (region[1] < 0) { region[1] = 0;  }
-	                if (region[0]+region[2] > w) { region[2] = w - region[0]; }
-	                if (region[1]+region[3] > h) { region[3] = h - region[1]; }
-
-
-	            // update the box    
-	            viewer.updateOverlay(drag.overlayElement, location);
-
-	            // get the outputs
-	            
-	            CT.outputs = {
-	                "manifest": CT.current.manifest,
-	                "canvas": CT.current.canvas,
-	                "service": CT.current.service,
-	                "version": CT.current.version,
-	                "large": CT.current.service + "/" + region.join(',') + "/1200,/" + CT.current.rotation + "/default.jpg",
-	                "small": CT.current.service + "/" + region.join(',') + "/,300/" + CT.current.rotation + "/default.jpg",
-	                "actual": CT.current.service + "/" + region.join(',') + "/" + overlayHeight + ",/" + CT.current.rotation + "/default.jpg",
-	                "html": ""
-	            }
-	            if (CT.current.version == 3) {
-	                CT.outputs.actual = CT.current.service + "/" + region.join(',') + "/max/" + CT.current.rotation + "/default.jpg";
-	            } else {
-	                CT.outputs.actual = CT.current.service + "/" + region.join(',') + "/full/" + CT.current.rotation + "/default.jpg";
-	            }
-	            CT.outputs.html = "<img alt='detail' src='" + CT.outputs.small + "' data-manifest='" + CT.current.manifest + "'/>";
-
-	            updateOutputURLs();
-	        },
-	        releaseHandler: function(event) {
-
-	            if (CT.selectionMode == true) {
-
-	                var id = makeid();
-
-	                manifest_url = jQuery("#url").val();
-
-	                // add info to the selections array
-	                // creating an id would probably be good
-	                CT.selections[id] = CT.outputs;
-	                //var selection_index = CT.selections.push(CT.outputs)-1;
-
-	                // if any items in the tray are currently active, remove active class
-	                jQuery(".preview-item.active-item").removeClass('active-item');
+	            // if any items in the tray are currently active, remove active class
+	            jQuery(".preview-item.active-item").removeClass('active-item');
 
 
-	                //construct html of thumbnail in bottom tray
+	            //construct html of thumbnail in bottom tray
 
-	                var mirador_link = "https://mcgrawcenter.github.io/mirador/?manifest=" + manifest_url + "&canvas=" + CT.outputs.canvas;
+	            var mirador_link = "https://mcgrawcenter.github.io/mirador/?manifest=" + manifest_url + "&canvas=" + CT.outputs.canvas;
 
-	                var preview_item = "<div id='" + id + "' class='preview-item active-item' data-service='" + CT.outputs.service + "' data-canvas='" + CT.outputs.canvas + "' data-manifest='" + manifest_url + "'>\
+	            var preview_item = "<div id='" + id + "' class='preview-item active-item' data-service='" + CT.outputs.service + "' data-canvas='" + CT.outputs.canvas + "' data-manifest='" + manifest_url + "'>\
 		    <div>" + CT.outputs.html + "</div>\
 		    <div class='selectcrop copyable' style='position:absolute;top:0px;left:0px;z-index:-100'>\
 		    <a href='" + CT.current.manifest + "' title='detail image' target='_blank'>" + CT.outputs.html + "</a>\
@@ -266,42 +243,42 @@
 		     <a href='" + CT.outputs.actual + "' class='preview-item-external' target='_blank'><img src='assets/images/external-white.svg' class='icon-sm'/></a>\
 		     <a href='#' class='preview-item-close'><img src='assets/images/x-white.svg' class='icon-sm'/></a></span></div>";
 
-	                jQuery("#preview").find('.preview-tray').prepend(preview_item);
+	            jQuery("#preview").find('.preview-tray').prepend(preview_item);
 
 
-	                tippy('.copyable', {
-	                    trigger: "click",
-	                    content: "Copied",
-	                    placement: "left",
-	                    onShow(instance) {
-	                        setTimeout(() => {
-	                            instance.hide();
-	                        }, 2000);
-	                    }
-	                });
-
-	                jQuery("#preview").addClass('shown').show();
-
-	                // revert output mode back to actual
-	                jQuery("#actual").prop("checked", true);
-	                jQuery("#output").attr('data-mode', 'actual');
-
-	                jQuery("#crop").removeClass("activated");
-	                CT.selectionMode = false;
-	                viewer.setMouseNavEnabled(true);
-	                if (overlay) {
-	                    viewer.removeOverlay("overlay");
+	            tippy('.copyable', {
+	                trigger: "click",
+	                content: "Copied",
+	                placement: "left",
+	                onShow(instance) {
+	                    setTimeout(() => {
+	                        instance.hide();
+	                    }, 2000);
 	                }
+	            });
 
-	                jQuery("#output").attr('data-mode', 'actual');
-	                setMode('large');
-	                updateOutputURLs();
+	            jQuery("#preview").addClass('shown').show();
+
+	            // revert output mode back to actual
+	            jQuery("#actual").prop("checked", true);
+	            jQuery("#output").attr('data-mode', 'actual');
+
+	            jQuery("#crop").removeClass("activated");
+	            CT.selectionMode = false;
+	            viewer.setMouseNavEnabled(true);
+	            if (overlay) {
+	                viewer.removeOverlay("overlay");
 	            }
 
-	            drag = null;
-
+	            jQuery("#output").attr('data-mode', 'actual');
+	            setMode('large');
+	            updateOutputURLs();
 	        }
-	    });
+
+	        drag = null;
+
+	    }
+	});
 
 
 	/*************************
@@ -410,9 +387,9 @@
 	        }
 
 	        setMode('large');
-	        
+
 	        CT.outputs.html = "<img alt='detail' src='" + CT.outputs.actual + "' data-manifest='" + CT.current.manifest + "'/>";
-	        
+
 	        updateOutputURLs();
 
 
@@ -421,9 +398,6 @@
 	    CT.mode = 'large';
 	    e.preventDefault();
 	});
-
-
-
 
 
 
@@ -439,9 +413,9 @@
 	    jQuery("#gallery").empty();
 	    load(url);
 	});
-	
-	
-	
+
+
+
 	/******************************
 	 *  Set the mode
 	 ********************************/
@@ -450,7 +424,7 @@
 	    jQuery("#output").attr("data-mode", mode);
 	    updateOutputURLs();
 	    jQuery(".preview-item.active-item").find(".preview-item-external").attr('href', CT.outputs[mode]);
-	}	
+	}
 
 
 
@@ -480,11 +454,11 @@
 	}
 
 	/************************************
-	* Load a manifest
-	* to do: if a manifest uses static images, we cannot use this tool
-	* we need to alert the user
-	* an example manifest with static jpgs at https://discover.york.ac.uk/ark:/36941/13192/presentation/3/manifest 
-	*************************************/
+	 * Load a manifest
+	 * to do: if a manifest uses static images, we cannot use this tool
+	 * we need to alert the user
+	 * an example manifest with static jpgs at https://discover.york.ac.uk/ark:/36941/13192/presentation/3/manifest 
+	 *************************************/
 	function load(url) {
 
 
@@ -506,24 +480,43 @@
 	    } else {
 
 
-	       var manifest = new IIIFParser();
-	       manifest.load(url);
-	       
-	       //console.log(manifest);
-	       
-	       switch(manifest.type) {
-	         case "Collection":
-	             manifest.items.forEach(function(item) {
-	                 load(item.id);
-	             });
-	         break;
-	         case "Manifest":
-	             CT.manifests[url] = manifest;
-	             buildGallery(url);
-	         break;	         
-	       }
+	        var manifest = new IIIFParser();
+	        manifest.load(url);
+
+	        var o = {
+	            'label': manifest.label,
+	            'metadata': manifest.metadata,
+	            'items': []
+	        }
+	        CT.manifests[url] = o;
 
 
+	        switch (manifest.type) {
+	            case "Collection":
+	                manifest.items.forEach(function(item) {
+	                    load(item.id);
+	                });
+	                break;
+	            case "Manifest":
+
+	                manifest.items.forEach((item) => {
+	                    var x = {
+	                        'manifest': url,
+	                        'service': item.service,
+	                        'canvas': item.id,
+	                        'label': item.label,
+	                        'version': item.type
+	                    }
+
+
+	                    CT.manifests[url].items.push(x);
+	                    console.log(CT);
+	                });
+
+
+	                buildGallery(url);
+	                break;
+	        }
 
 
 
@@ -531,52 +524,51 @@
 	    } // end if/else
 
 	}
-	
+
 	/****************************
-	* remove item from preview bar
-	*****************************************/
-	
+	 * remove item from preview bar
+	 *****************************************/
+
 	jQuery(document).on("click", ".preview-item-close", function(e) {
-	  jQuery(this).parent().parent().remove();
-	  e.preventDefault();
+	    jQuery(this).parent().parent().remove();
+	    e.preventDefault();
 	});
-	
+
 	/****************************
-	* click on info icon in preview item
-	*****************************************/
-	
+	 * click on info icon in preview item
+	 *****************************************/
+
 	jQuery(document).on("click", ".preview-item-metadata", function(e) {
-	
-	  var manifest = jQuery(this).parent().parent().attr('data-manifest');
-	  var canvas = jQuery(this).parent().parent().attr('data-canvas');
 
-	  console.log(CT.current);
-	  
-	   // update the urls that go in the 'copy' textarea
-	   updateOutputURLs();
+	    var manifest = jQuery(this).parent().parent().attr('data-manifest');
+	    var canvas = jQuery(this).parent().parent().attr('data-canvas');
 
-	   var o = CT.manifests[manifest];
 
-	   var html = "";
-	   html += "<p><label for='title'>Title:</label> <span id='title'>"+o.label+"</span></p>";
-	   html += "<p><label for='descr'>Description:</label> <span id='descr'>"+o.description+"</span></p>";
-	   
-	   jQuery.each(o.metadata, function(i,v) {
-	     html += "<p><label for='"+v.label+"'>"+v.label+":</label> <span id='"+v.label+"'>"+v.value+"</span></p>";
-	   });
-	   html += "<p><a href='"+manifest+"' target='_blank'><img src='assets/images/iiif.svg' class='icon'/></a></p>";
-	   
-	   html += "<p><strong>Manifest</strong>: "+manifest+"</p>";
-	   html += "<p><strong>Canvas</strong>: "+canvas+"</p>";
-	   html += "<p><strong>Region</strong>: "+region.join(',')+"</p>";
-	   
-	   
-	   
-	   jQuery('#modal_content').html(html);
-	   jQuery('#modal').modal();
+	    // update the urls that go in the 'copy' textarea
+	    updateOutputURLs();
 
-	  e.preventDefault();
-	});		
+	    var o = CT.manifests[manifest];
+
+	    var html = "";
+	    html += "<p><label for='title'>Title:</label> <span id='title'>" + o.label + "</span></p>";
+	    html += "<p><label for='descr'>Description:</label> <span id='descr'>" + o.description + "</span></p>";
+
+	    jQuery.each(o.metadata, function(i, v) {
+	        html += "<p><label for='" + v.label + "'>" + v.label + ":</label> <span id='" + v.label + "'>" + v.value + "</span></p>";
+	    });
+	    html += "<p><a href='" + manifest + "' target='_blank'><img src='assets/images/iiif.svg' class='icon'/></a></p>";
+
+	    html += "<p><strong>Manifest</strong>: " + manifest + "</p>";
+	    html += "<p><strong>Canvas</strong>: " + canvas + "</p>";
+	    html += "<p><strong>Region</strong>: " + region.join(',') + "</p>";
+
+
+
+	    jQuery('#modal_content').html(html);
+	    jQuery('#modal').modal();
+
+	    e.preventDefault();
+	});
 
 
 	/******************
@@ -663,15 +655,16 @@
 	 *********************************/
 
 	function buildGallery(id) {
-	
-	    console.log(id);
+
 	    console.log(CT.manifests[id]);
 
 	    var html = "<div>";
+
 	    html += "<p class='gallery-manifest-label'>" + CT.manifests[id].label + "</p>";
 	    html += "<ul>";
 
 	    jQuery.each(CT.manifests[id].items, function(i, v) {
+
 	        if (v.service != 'error') {
 	            html += "<li class='gallery-item' data-manifest='" + v.manifest + "' data-canvas='" + v.canvas + "' data-service='" + v.service + "' data-version='" + v.version + "' alt='image " + i + "'><img alt='" + v.label + "' src='" + v.service + "/full/,200/0/default.jpg'/><div class='gallery-item-label'>" + v.label + " </div></li>";
 	        } else {
@@ -680,12 +673,9 @@
 	    });
 	    html += "</ul>";
 	    html += "</div>";
-	    
+
 	    jQuery("#gallery").append(html);
 	}
-
-
-
 
 
 
@@ -747,25 +737,50 @@
 	    //Success!!
 	    console.log("image copied!");
 	});
-	
-  /************************************
-  * 
-  *************************************/
-  function internetArchive2Manifest (url) {
-     var parts = url.split("/");
-     for(var x=0;x<=parts.length;x++) { 
-       if(parts[x] == 'details') { 
-         var ia_id = parts[x+1];
-         return "https://iiif.archive.org/iiif/"+ia_id+"/manifest.json";
-       }
-     }     
-  }
 
-  /************************************
-  * 
-  *************************************/
-  function wikimediaCommons2Manifest (url) {  
-    var parts = url.split("File:");
-    return "https://iiif.juncture-digital.org/wc:"+parts[1]+"/manifest.json";  
-  }
-  	
+	/************************************
+	 * 
+	 *************************************/
+	function internetArchive2Manifest(url) {
+	    var parts = url.split("/");
+	    for (var x = 0; x <= parts.length; x++) {
+	        if (parts[x] == 'details') {
+	            var ia_id = parts[x + 1];
+	            return "https://iiif.archive.org/iiif/" + ia_id + "/manifest.json";
+	        }
+	    }
+	}
+
+	/************************************
+	 * 
+	 *************************************/
+	function wikimediaCommons2Manifest(url) {
+	    var parts = url.split("File:");
+	    return "https://iiif.juncture-digital.org/wc:" + parts[1] + "/manifest.json";
+	}
+
+
+
+	/**************************
+	 * tooltip
+	 *************************************************/
+
+	tippy('#copy', {
+	    trigger: "click",
+	    content: "Copied",
+	    onShow(instance) {
+	        setTimeout(() => {
+	            instance.hide();
+	        }, 2000);
+	    }
+	});
+
+	tippy('.copyable', {
+	    trigger: "click",
+	    content: "Copied",
+	    onShow(instance) {
+	        setTimeout(() => {
+	            instance.hide();
+	        }, 2000);
+	    }
+	});

@@ -125,13 +125,15 @@ class IIIFParser {
         for (const sequence of manifest.sequences) {
 
           if ('canvases' in sequence) {
-
           
             for (const canvas of sequence.canvases) {
             
+              var canvasID = canvas['@id'];
+            
               // sometimes canvases don't have images
               if(canvas.images) { 
-                 var imageobj = {"label":"","service":"","type": 2,"thumb":""}
+                 var imageobj = {"id":"","label":"","service":"","type": 2,"thumb":""}
+                 imageobj.id = canvasID;
 		  var thumb = this.getCanvasThumbnail(canvas, 150,150);
 		  if(thumb !== false) { imageobj.thumb = thumb; } else { imageobj.thumb = ""; }
 		  imageobj.label = canvas.label;
@@ -157,7 +159,7 @@ class IIIFParser {
   *************************************/
   parsev3 (manifest) {
   
-      this.id = this.getFirstValue(manifest['id']); 
+      this.id = this.getFirstValue(manifest['id']);
       this.type = "Manifest"; 
       this.label = this.getFirstValue(manifest.label);
       this.summary = this.getFirstValue(manifest.description);
@@ -187,11 +189,13 @@ class IIIFParser {
         var items = manifest.items;
         for (const item of items) {
         
+            var canvasID = item.id;
+        
             if(item.items) {
 
-		      var imageobj = {"label":"","service":"","type":"","thumb":""}
+		      var imageobj = {"id":"", "label":"","service":"","type":"","thumb":""}
 
-
+		      imageobj.id = canvasID;
 		      // label
 		      if(item.label) {
 			switch(typeof item.label) {
