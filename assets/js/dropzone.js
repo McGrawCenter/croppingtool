@@ -48,7 +48,6 @@ window.addEventListener("drop", function (e) {
     var d = e.dataTransfer;
     var url_str = getQueryVariable(d.getData("text"));
     jQuery("#url").val(url_str);
-    jQuery("#gallery").empty();
     load(url_str);
 });
 

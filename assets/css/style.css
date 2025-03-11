@@ -53,7 +53,7 @@ body {
   background: floralwhite;
   display: flex;
   flex-direction: column;
-  justify-content: top;
+  justify-content: center;
   position:relative;
 }
 

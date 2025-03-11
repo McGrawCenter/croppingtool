@@ -1,26 +1,11 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <title>IIIF Cropping Tool</title>
-  <meta name="description" content="A tool for cropping images from IIIF manifests, developed at the McGraw Center for Teaching and Learning, Princeton University">
-  <script src="assets/js/jquery.min.js"></script>
-  <script src="assets/js/parser.js"></script>
-  
-  <!-- jQuery Modal -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-modal/0.9.1/jquery.modal.min.js"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-modal/0.9.1/jquery.modal.min.css" />
-  
-  <!-- Tippy -->
-  <script src="https://unpkg.com/popper.js@1"></script>
-  <script src="https://unpkg.com/tippy.js@5"></script>
-
-  <link type="text/css" rel="stylesheet" href="assets/css/style.css">
-  <link rel="shortcut icon" type="image/jpg" href="assets/images/favicon.gif"/>
+  {% include head.html %}
 </head>
 
 <body>
-
+<canvas-panel id="cp"></canvas-panel>
 
     <!-- -------------- overlays ---------------- -->
     <div id='dropzone' class=''>Drop a manifest link here</div>
@@ -59,7 +44,7 @@
 	  -->
 	  <p class='url-element' style="position:relative;display:flex;">
 
-	    <input type="text" id="url" placeholder="Enter the URL of a IIIF manifest." value="" />
+	    <input type="text" id="url" placeholder="Enter the URL of a IIIF manifest." value="https://www.loc.gov/item/98685116/manifest.json" />
 	    <button id="submit" style="position:absolute;right:0px;top:0px;height:100%;">Submit</button>
 
 	  </p>
@@ -114,7 +99,7 @@
 
   
   <script src="assets/js/openseadragon/openseadragon.min.js"></script>  
-  <script src="assets/js/script.js?v=0.1.9"></script>
+  <script src="assets/js/script.js?v=0.1.8"></script>
   <script src="assets/js/dropzone.js?v=0.1"></script>
   
    <script>
