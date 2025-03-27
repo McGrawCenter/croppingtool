@@ -221,7 +221,7 @@
 	                "service": CT.current.service,
 	                "version": CT.current.version,
 	                "large": CT.current.service + "/" + region.join(',') + "/1200,/" + CT.current.rotation + "/default.jpg",
-	                "small": CT.current.service + "/" + region.join(',') + "/300,/" + CT.current.rotation + "/default.jpg",
+	                "small": CT.current.service + "/" + region.join(',') + "/,300/" + CT.current.rotation + "/default.jpg",
 	                "actual": CT.current.service + "/" + region.join(',') + "/" + overlayHeight + ",/" + CT.current.rotation + "/default.jpg",
 	                "html": ""
 	            }
@@ -403,7 +403,7 @@
 	            "canvas": CT.current.canvas,
 	            "service": CT.current.service,
 	            "large": CT.current.service + "/full/1200,/0/default.jpg",
-	            "small": CT.current.service + "/full/300,/0/default.jpg",
+	            "small": CT.current.service + "/full/,300/0/default.jpg",
 	            "actual": CT.current.service + "/full/full/0/default.jpg",
 	            "html": ""
 	        }
