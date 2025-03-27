@@ -310,6 +310,7 @@
 	    if (jQuery("#crop").hasClass("activated")) {
 	        jQuery("#crop").removeClass("activated");
 	        CT.selectionMode = false;
+	        viewer.removeOverlay("overlay");
 	        viewer.setMouseNavEnabled(true);
 	    } else {
 	        jQuery("#crop").addClass("activated");
@@ -556,7 +557,7 @@
 					}); // end annoPage.forEach
 					
 				        var x = {
-				            'manifest': manifest,
+				            'manifest': url,
 				            'service': service,
 				            'canvas': canvas,
 				            'label': label,
