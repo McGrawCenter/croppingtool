@@ -22,6 +22,9 @@
 
 
 
+
+
+
 	function init() {
 
 
@@ -52,8 +55,8 @@
 	    if (typeof vars.manifest !== 'undefined') {
 	        var url = vars.manifest;
 	        jQuery("#url").val(url);
-	        jQuery("#gallery").empty();
 	        //current.manifest = url;
+	        
 	        load(url);
 	    }
 
@@ -227,7 +230,7 @@
 	            } else {
 	                CT.outputs.actual = CT.current.service + "/" + region.join(',') + "/full/" + CT.current.rotation + "/default.jpg";
 	            }
-	            CT.outputs.html = "<img alt='detail' src='" + CT.outputs.actual + "' data-manifest='" + CT.current.manifest + "'/>";
+	            CT.outputs.html = "<img alt='detail' src='" + CT.outputs.small + "' data-manifest='" + CT.current.manifest + "'/>";
 
 	            updateOutputURLs();
 	        },
@@ -251,11 +254,13 @@
 	                //construct html of thumbnail in bottom tray
 
 	                var mirador_link = "https://mcgrawcenter.github.io/mirador/?manifest=" + manifest_url + "&canvas=" + CT.outputs.canvas;
+	                
+	                var alttext = "detail from " + CT.manifests[CT.current.manifest].label.replace("'","&apos;");
 
 	                var preview_item = "<div id='" + id + "' class='preview-item active-item' data-service='" + CT.outputs.service + "' data-canvas='" + CT.outputs.canvas + "' data-manifest='" + manifest_url + "'>\
 		    <div>" + CT.outputs.html + "</div>\
 		    <div class='selectcrop copyable' style='position:absolute;top:0px;left:0px;z-index:-100'>\
-		    <a href='" + mirador_link + "' title='detail image' target='_blank'>" + CT.outputs.html + "</a>\
+		    <a href='" + mirador_link + "' title='"+alttext+"' target='_blank'>" + CT.outputs.html + "</a>\
 		    </div>\
 		    <span class='preview-item-tools'>\
 		     <a href='#' class='copyable'><img src='assets/images/copy.svg' class='icon-sm'/></a>\
@@ -310,7 +315,6 @@
 	    if (jQuery("#crop").hasClass("activated")) {
 	        jQuery("#crop").removeClass("activated");
 	        CT.selectionMode = false;
-	        viewer.removeOverlay("overlay");
 	        viewer.setMouseNavEnabled(true);
 	    } else {
 	        jQuery("#crop").addClass("activated");
@@ -399,7 +403,7 @@
 	            "canvas": CT.current.canvas,
 	            "service": CT.current.service,
 	            "large": CT.current.service + "/full/1200,/0/default.jpg",
-	            "small": CT.current.service + "/full/,300/0/default.jpg",
+	            "small": CT.current.service + "/full/300,/0/default.jpg",
 	            "actual": CT.current.service + "/full/full/0/default.jpg",
 	            "html": ""
 	        }
@@ -408,7 +412,10 @@
 	        }
 
 	        setMode('large');
-	        CT.outputs.html = "<img alt='detail' src='" + CT.outputs.actual + "' data-manifest='" + CT.current.manifest + "'/>";
+
+		var alttext = CT.manifests[CT.current.manifest].label.replace("'","&apos;");
+	        
+	        CT.outputs.html = "<img alt='detail of "+alttext+"' src='" + CT.outputs.actual + "' data-manifest='" + CT.current.manifest + "'/>";
 	        
 	        updateOutputURLs();
 
@@ -485,6 +492,8 @@
 	function load(url) {
 
 
+	    jQuery("#gallery").empty();
+
 	    // UCLA has an 'ark:' in their urls that need to be encoded
 	    url = url.replace(/ark:\/(.*?)\//, function(r, a) {
 	        return "ark%3A%2F" + a + "%2F"
@@ -501,102 +510,33 @@
 	    if (url.search(/\/([0-9]{1,3})\/(color|gray|bitonal|default)\.(png|jpg)/) > 0) {
 	        parseSingleImage(url);
 	    } else {
-	    
-	    
-		   const cp = document.getElementById("cp");
-		   cp.vault.loadManifest(url).then(manifest => {
 
-			    var label = getFirstValue(manifest.label);
 
-			    var metadata = [];
-			    if (typeof manifest.metadata != undefined) {
-				manifest.metadata.forEach(function(meta) {
-				    var meta_label = getFirstValue(meta.label);
-				    var meta_value = getFirstValue(meta.value);
-				    CT.metadata.push({
-				        'label': meta_label,
-				        'value': meta_value
-				    });
-				});
-			    }
+	       var manifest = new IIIFParser();
+	       manifest.load(url);
 
-			    var o = { 'label': label,'metadata': metadata,'items': [] }
-			    CT.manifests[url] = o;
-			    
-			    var type = manifest.type;
-			    var items = cp.vault.get(manifest.items);
 
-			    switch (type) {
+	       
+	       switch(manifest.type) {
+	         case "Collection":
+	             manifest.items.forEach(function(item) {
+	                 load(item.id);
+	             });
+	         break;
+	         case "Manifest":
+	             CT.manifests[url] = manifest;
+	             buildGallery(url);
+	         break;	         
+	       }
 
-				case 'Collection':
-				    items.forEach(function(item) {
-				        load(item.id);
-				    });
-				break;
-				
-				case 'Manifest':
-				
-				    //console.log(url);
-				
-				    items.forEach((item)=>{   
-				     
-				       var canvas = item.id;
-				       var label = getFirstValue(item.label);
-				       var service = "error";
-				       var version = 2;
-				                              
-					var annoPage = cp.vault.get(item.items);
-					annoPage.forEach((annoPage)=>{
-					  var annotation = cp.vault.get(annoPage.items[0]);
-					  var body = cp.vault.get(annotation.body[0]);
-					  if(typeof body.service != undefined) {
-					        service = parseService(body.service).replace(/\/$/, "");
-					  }  
-		      
-					}); // end annoPage.forEach
-					
-				        var x = {
-				            'manifest': url,
-				            'service': service,
-				            'canvas': canvas,
-				            'label': label,
-				            'version': version
-				        }
-console.log(x);
-				        
-				        CT.manifests[url].items.push(x);
 
-				    });   // end items.forEach         
-				    buildGallery(url);
-				break;				
-			    
-			    }
-			    
-			    
-			    
-			    
-		   });  
+
+
+
 
 	    } // end if/else
 
 	}
-	
-	function parseService(serviceObj) {
-
-	   if(Array.isArray(serviceObj)) {
-	   
-	        if(serviceObj[0]['@id']) {  return serviceObj[0]['@id']; }
-	        else { return serviceObj[0].id; }
-
-	   }
-	   else {
-	        if(serviceObj['@id']) {  return serviceObj['@id']; }
-	        else { return serviceObj.id; }
-	   }
-	
-	}
-	
-	
 	
 	/****************************
 	* remove item from preview bar
@@ -615,8 +555,7 @@ console.log(x);
 	
 	  var manifest = jQuery(this).parent().parent().attr('data-manifest');
 	  var canvas = jQuery(this).parent().parent().attr('data-canvas');
-
-
+	  
 	   // update the urls that go in the 'copy' textarea
 	   updateOutputURLs();
 
@@ -666,6 +605,7 @@ console.log(x);
 
 	    // if we are changing to a different manifest, reload the gallery of thumbs
 
+
 	    if (previous_manifest_url != CT.selections[id].manifest) {
 	        load(CT.selections[id].manifest);
 	    }
@@ -706,23 +646,19 @@ console.log(x);
 	 *********************************/
 
 	function getFirstValue(o) {
-	    
-	    if(Array.isArray(o)) {
-	      return o.label[0];
-	    }
-	    else if(typeof o === 'object'  && o !== null) {
+	    if (typeof o === "object") {
 	        var x = Object.values(o)[0];
 	        if (typeof x == 'object') {
 	            return Object.values(x)[0];
 	        } else {
 	            return x;
 	        }
-	    }
-	    else if (typeof o === "string") {
-	      return o;
-	    }
-	    else {
-	      return "";
+	    } else if (typeof o === "array") {
+	        return o.label[0];
+	    } else if (typeof o === "string") {
+	        return o;
+	    } else {
+	        return "";
 	    }
 	}
 
@@ -734,22 +670,21 @@ console.log(x);
 	function buildGallery(id) {
 
 
-
 	    var html = "<div>";
 	    html += "<p class='gallery-manifest-label'>" + CT.manifests[id].label + "</p>";
 	    html += "<ul>";
-	    
-	    
 
 	    jQuery.each(CT.manifests[id].items, function(i, v) {
+	    
 	        if (v.service != 'error') {
-	            html += "<li class='gallery-item' data-manifest='" + v.manifest + "' data-canvas='" + v.canvas + "' data-service='" + v.service + "' data-version='" + v.version + "' alt='image " + i + "'><img alt='" + v.label + "' src='" + v.service + "/full/,200/0/default.jpg'/><div class='gallery-item-label'>" + v.label + " </div></li>";
+	            html += "<li class='gallery-item' data-manifest='" + id + "' data-canvas='" + v.id + "' data-service='" + v.service + "' data-version='" + v.type + "' alt='image " + i + "'><img alt='" + v.label + "' src='" + v.service + "/full/,200/0/default.jpg'/><div class='gallery-item-label'>" + v.label + " </div></li>";
 	        } else {
 	            html += "<li class='gallery-item' data-manifest='" + v.manifest + "' data-canvas='" + v.canvas + "' data-service='" + v.service + "' data-version='" + v.version + "' alt='image " + i + "'><div class='gallery-item-label'>" + v.label + " </div></li>";
 	        }
 	    });
 	    html += "</ul>";
 	    html += "</div>";
+	    
 	    jQuery("#gallery").append(html);
 	}
 

@@ -12,8 +12,7 @@ class IIIFParser {
   }
   
   
-  
-  
+ 
   
   synchronousRequest(url) {
      const xhr = new XMLHttpRequest();

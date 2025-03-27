@@ -60,6 +60,7 @@ body {
 .gallery-item img { 
   max-height: 100%;
   max-width: fit-content;
+  width:100%;
   margin: 0 auto;
  }
 .gallery-item-active { border:2px solid red; }
