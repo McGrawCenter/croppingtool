@@ -253,7 +253,7 @@
 
 	                //construct html of thumbnail in bottom tray
 
-	                var mirador_link = "https://mcgrawcenter.github.io/mirador/?manifest=" + manifest_url + "&canvas=" + CT.outputs.canvas;
+	                var mirador_link = "https://mcgrawcenter.github.io/mirador/?manifest=" + encodeURI(manifest_url) + "&canvas=" + CT.outputs.canvas;
 	                
 	                var alttext = "detail from " + CT.manifests[CT.current.manifest].label.replace("'","&apos;");
 
