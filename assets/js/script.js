@@ -255,7 +255,7 @@
 	                var preview_item = "<div id='" + id + "' class='preview-item active-item' data-service='" + CT.outputs.service + "' data-canvas='" + CT.outputs.canvas + "' data-manifest='" + manifest_url + "'>\
 		    <div>" + CT.outputs.html + "</div>\
 		    <div class='selectcrop copyable' style='position:absolute;top:0px;left:0px;z-index:-100'>\
-		    <a href='" + CT.current.manifest + "' title='detail image' target='_blank'>" + CT.outputs.html + "</a>\
+		    <a href='" + mirador_link + "' title='detail image' target='_blank'>" + CT.outputs.html + "</a>\
 		    </div>\
 		    <span class='preview-item-tools'>\
 		     <a href='#' class='copyable'><img src='assets/images/copy.svg' class='icon-sm'/></a>\
@@ -408,7 +408,6 @@
 	        }
 
 	        setMode('large');
-	        console.log(CT.current);
 	        CT.outputs.html = "<img alt='detail' src='" + CT.outputs.actual + "' data-manifest='" + CT.current.manifest + "'/>";
 	        
 	        updateOutputURLs();
