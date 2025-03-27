@@ -399,7 +399,7 @@
 	            "canvas": CT.current.canvas,
 	            "service": CT.current.service,
 	            "large": CT.current.service + "/full/1200,/0/default.jpg",
-	            "small": CT.current.service + "/full/300,/0/default.jpg",
+	            "small": CT.current.service + "/full/,300/0/default.jpg",
 	            "actual": CT.current.service + "/full/full/0/default.jpg",
 	            "html": ""
 	        }
@@ -408,7 +408,7 @@
 	        }
 
 	        setMode('large');
-	        
+	        console.log(CT.current);
 	        CT.outputs.html = "<img alt='detail' src='" + CT.outputs.actual + "' data-manifest='" + CT.current.manifest + "'/>";
 	        
 	        updateOutputURLs();

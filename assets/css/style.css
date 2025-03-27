@@ -58,8 +58,9 @@ body {
 }
 
 .gallery-item img { 
-  max-height: 150px;
-  max-width: 150px;
+  max-height: 100%;
+  max-width: fit-content;
+  margin: 0 auto;
  }
 .gallery-item-active { border:2px solid red; }
 .active-item { border-bottom:2px solid red; }
