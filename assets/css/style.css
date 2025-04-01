@@ -59,7 +59,7 @@ body {
 
 .gallery-item img { 
   max-height: 200px;
-  max-width: fit-content;
+  max-width: 100%;
   margin: 0 auto;
  }
 .gallery-item-active { border:2px solid red; }
