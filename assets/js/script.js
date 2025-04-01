@@ -495,8 +495,10 @@
 	    jQuery("#gallery").empty();
 
 	    // UCLA has an 'ark:' in their urls that need to be encoded
-	    url = url.replace(/ark:\/(.*?)\//, function(r, a) {
-	        return "ark%3A%2F" + a + "%2F"
+	    url = url.replace(/ark:\/(.*?)\/full/, function(r, a) {
+	        var parts = a.split('/');
+	        console.log(parts);
+	        return "ark%3A%2F" + parts.join('%2F')+"/full";
 	    });
 
 	    // if this is an Internet Archive URL
@@ -513,6 +515,7 @@
 
 
 	       var manifest = new IIIFParser();
+	       //console.log(manifest);
 	       manifest.load(url);
 
 
@@ -669,12 +672,15 @@
 
 	function buildGallery(id) {
 
+	console.log(CT);
 
 	    var html = "<div>";
 	    html += "<p class='gallery-manifest-label'>" + CT.manifests[id].label + "</p>";
 	    html += "<ul>";
 
 	    jQuery.each(CT.manifests[id].items, function(i, v) {
+	    
+	    console.log(v);
 	    
 	        if (v.service != 'error') {
 	            html += "<li class='gallery-item' data-manifest='" + id + "' data-canvas='" + v.id + "' data-service='" + v.service + "' data-version='" + v.type + "' alt='image " + i + "'><img alt='" + v.label + "' src='" + v.service + "/full/,200/0/default.jpg'/><div class='gallery-item-label'>" + v.label + " </div></li>";
@@ -764,6 +770,39 @@
        }
      }     
   }
+
+
+  /************************************
+  *  allow user to submit a single iiif image url
+  *************************************/
+    function parseSingleImage(url) {
+      var s = url.split("/").slice(0,-4);
+      var service = s.join("/");
+      // initialize an object that will contain info
+      var o = {'id':url,'label':'','service':service,'thumb':service+'/full/300,/0/default.jpg', 'type': 2, 'items':[]}
+      
+
+      var item = {'id':url,'label':'','service':service,'thumb':service+'/full/300,/0/default.jpg','type':2}
+      o.items.push(item); 
+      
+      CT.manifests[url] = o;
+      buildGallery(url);
+      /*
+      o.label = "No title";
+      o.description = "No description";
+      var r = {}
+      r.id = url;
+      r.label = "Untitled";
+      r.service = s;
+      r.thumb = s+"/full/300,/0/default.jpg";
+      r.type = 2;
+           
+      //masterlist[id] = o;
+      //current_id = id;
+      CT.manifests[url] = id;
+      
+      */
+   }
 
   /************************************
   * 
