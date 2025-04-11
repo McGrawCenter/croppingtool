@@ -131,12 +131,12 @@
 	        CT.current.rotation = viewer.viewport.getRotation();
 
 	        if (CT.current.rotation < 0) {
-	            CT.current.rotation = 360 + rotation;
+	            CT.current.rotation = 360 + CT.current.rotation;
 	        }
 	        if (CT.current.rotation == 360) {
 	            CT.current.rotation = 0;
 	        }
-
+		console.log(CT.current.rotation);
 	    });
 
 
