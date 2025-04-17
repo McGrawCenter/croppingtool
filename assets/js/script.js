@@ -492,8 +492,6 @@
 	function load(url) {
 
 
-	    jQuery("#gallery").empty();
-
 	    // UCLA has an 'ark:' in their urls that need to be encoded
 	    url = url.replace(/ark:\/(.*?)\/full/, function(r, a) {
 	        var parts = a.split('/');
