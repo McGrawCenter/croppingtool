@@ -498,10 +498,7 @@
 	        var parts = a.split('/');
 	        return "ark%3A%2F" + parts.join('%2F')+"/full";
 	    });
-	    url = url.replace(/ark:\/(.*?)\/manifest/, function(r, a) {
-	        var parts = a.split('/');
-	        return "ark%3A%2F" + parts.join('%2F')+"/manifest";
-	    });
+
 
 	    // if this is an Internet Archive URL
 	    // convert it to a manifest
