@@ -516,7 +516,41 @@
 	    } else {
 
 
-	       var manifest = new IIIFParser();
+
+	    fetch(url).then(response => {
+			  if (!response.ok) {
+			      throw new Error(response.statusText);
+			  }
+			  return response.json();
+	    })
+	    .then(manifest => {
+	    
+	       var m = new IIIFConverter();
+	       m.load(manifest);
+	       
+	       switch(m.type) {
+	         case "Collection":
+	             //if(m.items.length > 50) { m.items = m.items.slice(0, 49); console.log(m.items); }
+	         
+	             m.items.forEach(function(item) {
+	                 load(item.id);
+	             });
+	         break;
+	         case "Manifest":
+	             CT.manifests[url] = m;
+	             console.log(m);
+	             addToGallery(url, m);
+	             
+	         break;	         
+	       }
+
+	    });
+		  
+
+
+/*
+
+	       var manifest = new IIIFConverter();
 	       //console.log(manifest);
 	       manifest.load(url);
 
@@ -534,7 +568,7 @@
 	         break;	         
 	       }
 
-
+*/
 
 
 
@@ -682,8 +716,6 @@
 
 	    jQuery.each(CT.manifests[id].items, function(i, v) {
 	    
-	    console.log(v);
-	    
 	        if (v.service != 'error') {
 	            html += "<li class='gallery-item' data-manifest='" + id + "' data-canvas='" + v.id + "' data-service='" + v.service + "' data-version='" + v.type + "' alt='image " + i + "'><img alt='" + v.label + "' src='" + v.service + "/full/,200/0/default.jpg'/><div class='gallery-item-label'>" + v.label + " </div></li>";
 	        } else {
@@ -697,7 +729,29 @@
 	}
 
 
+	/************************************
+	 * 
+	 *********************************/
 
+	function addToGallery(manifest, item) {
+
+	    var html = "<div>";
+	    html += "<p class='gallery-manifest-label'>" + item.label + "</p>";
+	    html += "<ul>";
+	    jQuery.each(item.items, function(i, v) {
+	    
+	        if (v.service != 'error') {
+	            html += "<li class='gallery-item' data-manifest='" + manifest + "' data-canvas='" + v.id + "' data-service='" + v.service + "' data-version='" + v.type + "' alt='image " + i + "'><img alt='" + v.label + "' src='" + v.service + "/full/,200/0/default.jpg'/><div class='gallery-item-label'>" + v.label + " </div></li>";
+	        } else {
+	            html += "<li class='gallery-item' data-manifest='" + v.manifest + "' data-canvas='" + v.canvas + "' data-service='" + v.service + "' data-version='" + v.version + "' alt='image " + i + "'><div class='gallery-item-label'>" + v.label + " </div></li>";
+	        }
+	    });	    
+	    html += "</ul>";
+	    html += "</div>";
+	    
+	    jQuery("#gallery").append(html);
+	    
+	}
 
 
 
