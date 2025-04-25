@@ -22,9 +22,6 @@
 
 
 
-
-
-
 	function init() {
 
 
@@ -99,16 +96,6 @@
 	    jQuery(window).resize(function() {
 	        jQuery("#viewer").css("height", jQuery(window).height());
 	    });
-
-
-
-
-
-
-
-
-
-
 
 
 	} // end init()
@@ -220,6 +207,7 @@
 	                "canvas": CT.current.canvas,
 	                "service": CT.current.service,
 	                "version": CT.current.version,
+	                "region": region.join(','),
 	                "large": CT.current.service + "/" + region.join(',') + "/1200,/" + CT.current.rotation + "/default.jpg",
 	                "small": CT.current.service + "/" + region.join(',') + "/,300/" + CT.current.rotation + "/default.jpg",
 	                "actual": CT.current.service + "/" + region.join(',') + "/" + overlayHeight + ",/" + CT.current.rotation + "/default.jpg",
@@ -240,6 +228,7 @@
 
 	                var id = makeid();
 
+
 	                manifest_url = jQuery(".gallery-item-active").attr('data-manifest');
 
 	                // add info to the selections array
@@ -254,8 +243,7 @@
 	                //construct html of thumbnail in bottom tray
 
 	                var mirador_link = "https://mcgrawcenter.github.io/mirador/?manifest=" + encodeURI(manifest_url) + "&canvas=" + CT.outputs.canvas;
-	                
-	                console.log(manifest_url);
+
 	                
 	                var alttext = "detail from " + CT.manifests[CT.current.manifest].label.replace("'","&apos;");
 
@@ -540,40 +528,12 @@
 	         break;
 	         case "Manifest":
 	             CT.manifests[url] = m;
-	             console.log(m);
 	             addToGallery(url, m);
 	             
 	         break;	         
 	       }
 
 	    });
-		  
-
-
-/*
-
-	       var manifest = new IIIFConverter();
-	       //console.log(manifest);
-	       manifest.load(url);
-
-
-	       
-	       switch(manifest.type) {
-	         case "Collection":
-	             manifest.items.forEach(function(item) {
-	                 load(item.id);
-	             });
-	         break;
-	         case "Manifest":
-	             CT.manifests[url] = manifest;
-	             buildGallery(url);
-	         break;	         
-	       }
-
-*/
-
-
-
 
 	    } // end if/else
 
@@ -706,7 +666,7 @@
 
 	/************************************
 	 * 
-	 *********************************/
+	 ********************************
 
 	function buildGallery(id) {
 
@@ -729,7 +689,7 @@
 	    
 	    jQuery("#gallery").append(html);
 	}
-
+*/
 
 	/************************************
 	 * 
@@ -844,7 +804,8 @@
       o.items.push(item); 
       
       CT.manifests[url] = o;
-      buildGallery(url);
+      //buildGallery(url);
+      addToGallery(url, o);
       /*
       o.label = "No title";
       o.description = "No description";
@@ -861,6 +822,14 @@
       
       */
    }
+   
+   
+   
+   jQuery(".annotationpage").click(function(e){
+     var ap = new AnnotationPage(CT.selections);
+     ap.create();
+     e.preventDefault();
+   });
 
   /************************************
   * 
