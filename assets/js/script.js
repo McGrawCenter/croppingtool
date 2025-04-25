@@ -240,7 +240,7 @@
 
 	                var id = makeid();
 
-	                manifest_url = jQuery("#url").val();
+	                manifest_url = jQuery(".gallery-item-active").attr('data-manifest');
 
 	                // add info to the selections array
 	                // creating an id would probably be good
@@ -254,6 +254,8 @@
 	                //construct html of thumbnail in bottom tray
 
 	                var mirador_link = "https://mcgrawcenter.github.io/mirador/?manifest=" + encodeURI(manifest_url) + "&canvas=" + CT.outputs.canvas;
+	                
+	                console.log(manifest_url);
 	                
 	                var alttext = "detail from " + CT.manifests[CT.current.manifest].label.replace("'","&apos;");
 
