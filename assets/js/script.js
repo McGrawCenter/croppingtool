@@ -72,7 +72,7 @@
 	            }, 2000);
 	        }
 	    });
-
+/*
 	    tippy('.copyable', {
 	        trigger: "click",
 	        content: "Copied",
@@ -82,7 +82,7 @@
 	            }, 2000);
 	        }
 	    });
-
+*/
 
 	    /**************************
 	     * adjust the height of the gallery to the size of the screen
@@ -249,7 +249,7 @@
 
 	                var preview_item = "<div id='" + id + "' class='preview-item active-item' data-service='" + CT.outputs.service + "' data-canvas='" + CT.outputs.canvas + "' data-manifest='" + manifest_url + "'>\
 		    <div>" + CT.outputs.html + "</div>\
-		    <div class='selectcrop copyable' style='position:absolute;top:0px;left:0px;z-index:-100'>\
+		    <div id='copy-"+id+"' class='selectcrop' style='position:absolute;top:0px;left:0px;z-index:-100'>\
 		    <a href='" + mirador_link + "' title='"+alttext+"' target='_blank'>" + CT.outputs.html + "</a>\
 		    </div>\
 		    <span class='preview-item-tools'>\
@@ -590,27 +590,26 @@
 
 	jQuery(document).on("click", ".preview-item", function(e) {
 
+
 	    // highlight this gallery item
 	    jQuery(".preview-item").removeClass('active-item');
 	    jQuery(this).addClass("active-item");
 
 	    var id = jQuery(this).attr('id');
-
 	    jQuery(".gallery-item").removeClass('gallery-item-active');
 	    jQuery(".gallery-item[data-service='" + CT.selections[id].service + "']").addClass('gallery-item-active');
 
 	    //re-populate the url text field with the manifest url for this detail
 	    var previous_manifest_url = jQuery("#url").val();
 
-	    jQuery("#url").val(CT.selections[id].manifest);
+	    //jQuery("#url").val(CT.selections[id].manifest);
 
 	    // if we are changing to a different manifest, reload the gallery of thumbs
-
-
+	    /*
 	    if (previous_manifest_url != CT.selections[id].manifest) {
 	        load(CT.selections[id].manifest);
 	    }
-
+	    */
 	    //populate the output textarea with whatever mode is currently selected
 	    CT.outputs = CT.selections[id];
 	    updateOutputURLs();
@@ -761,12 +760,15 @@
 	}
 	jQuery(document).on("click", ".copyable", function(e) {
 	    var containerDiv = jQuery(this).parent().parent().find(".selectcrop");
+	    console.log(containerDiv);
 	    //Make the container Div contenteditable
 	    containerDiv.attr("contenteditable", true);
 	    //Select the image
+	    console.log('OK');
 	    SelectText(containerDiv.get(0));
 	    //Execute copy Command
 	    //Note: This will ONLY work directly inside a click listener
+	    
 	    document.execCommand('copy');
 	    //Unselect the content
 	    window.getSelection().removeAllRanges();
