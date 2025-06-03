@@ -430,7 +430,7 @@
 	jQuery("#submit").click(function() {
 	    var url = jQuery("#url").val();
 	    CT.current.manifest = url;
-	    jQuery("#gallery").empty();
+	    //jQuery("#gallery").empty();
 	    load(url);
 	});
 	
@@ -710,7 +710,7 @@
 	    html += "</ul>";
 	    html += "</div>";
 	    
-	    jQuery("#gallery").append(html);
+	    jQuery("#gallery").prepend(html);
 	    
 	}
 
