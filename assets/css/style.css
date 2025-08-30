@@ -32,8 +32,7 @@ body {
   
 #gallery { 
  width: 100%;
- overflow-y:scroll;
- max-height:500px;
+ overflow-y:auto;
 }
 
 #gallery ul { 

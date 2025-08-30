@@ -838,6 +838,6 @@
   *************************************/
   function wikimediaCommons2Manifest (url) {  
     var parts = url.split("File:");
-    return "https://iiif.juncture-digital.org/wc:"+parts[1]+"/manifest.json";  
+    return "https://iiif.juncture-digital.io/wc:"+parts[1]+"/manifest.json";  
   }
   	
