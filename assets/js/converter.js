@@ -123,8 +123,8 @@ class IIIFConverter {
 		  var thumb = this.getCanvasThumbnail(canvas, 150,150);
 		  if(thumb !== false) { imageobj.thumb = thumb; } else { imageobj.thumb = ""; }
 		  imageobj.label = canvas.label;
-		  imageobj.service = canvas.images[0].resource.service["@id"];
-		  //.replace(/\/$/, "")
+		  imageobj.service = canvas.images[0].resource.service["@id"].replace(/\/$/, "");
+		  
 		  if(canvas.images[0].resource.service["@context"] !== "http://iiif.io/api/image/2/context.json") { imageobj.type = 3; }
 		  // add this to the images array
                   this.items.push(imageobj);
@@ -205,7 +205,7 @@ class IIIFConverter {
 		    
 		    // service
 		    var service = item.items[0].items[0].body.service;
-		    //.replace(/\/$/, "")
+
 
 		    
 		    if(service[0].type == 'ImageService3') { imageobj.type = 3; } else { imageobj.type = 2; }
@@ -222,7 +222,9 @@ class IIIFConverter {
 		        imageobj.service = service.id;
 		      }
 		      
-		    } 
+		    }
+		    // if there is a trailing slash, remove it
+		    imageobj.service = imageobj.service.replace(/\/$/, "");
 		     // end service ------------------------------
 		     
 		     
