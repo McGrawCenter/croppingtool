@@ -481,7 +481,7 @@
 	*************************************/
 	function load(url) {
 
-
+	    url = decodeURIComponent(url);
 
 	    // UCLA has an 'ark:' in their urls that need to be encoded
 	    url = url.replace(/ark:\/(.*?)\/full/, function(r, a) {
@@ -505,7 +505,7 @@
 	        parseSingleImage(url);
 	    } else {
 
-
+	    
 
 	    fetch(url).then(response => {
 			  if (!response.ok) {
