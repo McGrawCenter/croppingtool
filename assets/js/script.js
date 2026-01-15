@@ -767,7 +767,7 @@
 	    var image = CT.outputs['html'];
 	    //populate stamp
 	    jQuery("#stamp").empty();
-	    jQuery("#stamp").append(`<a href='${link}'>${image}</a><br /><figure><a href='${link}'>${label}</a></figure>`);
+	    jQuery("#stamp").append(`<div><a href='${link}'>${image}</a><br /><figure><a href='${link}'>${label}</a></figure></div>`);
 	//BEN
 	    var containerDiv = jQuery("#stamp");
 	    console.log(containerDiv);
