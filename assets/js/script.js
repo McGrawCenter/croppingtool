@@ -762,7 +762,7 @@
 	}
 	jQuery(document).on("click", ".copyable", function(e) {
 	    var id = jQuery(this).parent().parent().attr('id');
-	    var label = CT.selections[id].label;
+	    var label = "Detail of "+CT.selections[id].label;
 	    var link = "https://mcgrawcenter.github.io/mirador/?manifest=" + encodeURI(CT.selections[id].manifest) + "&canvas=" + CT.selections[id].canvas;
 	    var image = CT.outputs['html'];
 	    //populate stamp
