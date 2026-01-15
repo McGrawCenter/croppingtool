@@ -204,6 +204,7 @@
 	            
 	            CT.outputs = {
 	                "manifest": CT.current.manifest,
+	                "label": CT.current.label,
 	                "canvas": CT.current.canvas,
 	                "service": CT.current.service,
 	                "version": CT.current.version,
@@ -335,6 +336,7 @@
 	jQuery(document).on("click", ".gallery-item", function(e) {
 
 	    CT.current.manifest = jQuery(this).attr('data-manifest');
+	    CT.current.label = jQuery(this).attr('alt');
 	    CT.current.canvas = jQuery(this).attr('data-canvas');
 	    CT.current.service = jQuery(this).attr('data-service');
 	    CT.current.version = jQuery(this).attr('data-version');
@@ -759,7 +761,15 @@
 	    }
 	}
 	jQuery(document).on("click", ".copyable", function(e) {
-	    var containerDiv = jQuery(this).parent().parent().find(".selectcrop");
+	    var id = jQuery(this).parent().parent().attr('id');
+	    var label = CT.selections[id].label;
+	    var link = "https://mcgrawcenter.github.io/mirador/?manifest=" + encodeURI(CT.selections[id].manifest) + "&canvas=" + CT.selections[id].canvas;
+	    var image = CT.outputs['html'];
+	    //populate stamp
+	    jQuery("#stamp").empty();
+	    jQuery("#stamp").append(`<a href='${link}'>${image}</a><br /><figure><a href='${link}'>${label}</a></figure>`);
+	//BEN
+	    var containerDiv = jQuery("#stamp");
 	    console.log(containerDiv);
 	    //Make the container Div contenteditable
 	    containerDiv.attr("contenteditable", true);
