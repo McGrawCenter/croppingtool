@@ -246,13 +246,10 @@
 	                var mirador_link = "https://mcgrawcenter.github.io/mirador/?manifest=" + encodeURI(manifest_url) + "&canvas=" + CT.outputs.canvas;
 
 	                
-	                var alttext = "detail from " + CT.manifests[CT.current.manifest].label.replace("'","&apos;");
+	                //var alttext = "detail from " + CT.manifests[CT.current.manifest].label.replace("'","&apos;");
 
 	                var preview_item = "<div id='" + id + "' class='preview-item active-item' data-service='" + CT.outputs.service + "' data-canvas='" + CT.outputs.canvas + "' data-manifest='" + manifest_url + "'>\
 		    <div>" + CT.outputs.html + "</div>\
-		    <div id='copy-"+id+"' class='selectcrop' style='position:absolute;top:0px;left:0px;z-index:-100'>\
-		    <a href='" + mirador_link + "' title='"+alttext+"' target='_blank'>" + CT.outputs.html + "</a>\
-		    </div>\
 		    <span class='preview-item-tools'>\
 		     <a href='#' class='copyable'><img src='assets/images/copy.svg' class='icon-sm'/></a>\
 		     <a href='#' class='preview-item-metadata'><img src='assets/images/info-circle-white.svg' class='icon-sm'/></a>\
@@ -386,7 +383,7 @@
 
 	        CT.current.rotation = 0;
 	        CT.current.region = "full",
-	            CT.current.size = adjustedwidth + ",";
+	        CT.current.size = adjustedwidth + ",";
 
 
 	        // update the urls that appear in the output textarea
@@ -405,7 +402,7 @@
 
 	        setMode('large');
 
-		var alttext = CT.manifests[CT.current.manifest].label.replace("'","&apos;");
+		var alttext = CT.current.label.replace("'","&apos;");
 	        
 	        CT.outputs.html = "<img alt='detail of "+alttext+"' src='" + CT.outputs.actual + "' data-manifest='" + CT.current.manifest + "'/>";
 	        
@@ -697,16 +694,20 @@
 	 *********************************/
 
 	function addToGallery(manifest, item) {
+	
+	    
 
 	    var html = "<div>";
 	    html += "<p class='gallery-manifest-label'>" + item.label + "</p>";
 	    html += "<ul>";
 	    jQuery.each(item.items, function(i, v) {
 	    
+	        var alttext = CT.manifests[manifest].label+": "+v.label;
+	    
 	        if (v.service != 'error') {
-	            html += "<li class='gallery-item' data-manifest='" + manifest + "' data-canvas='" + v.id + "' data-service='" + v.service + "' data-version='" + v.type + "' alt='image " + i + "'><img alt='" + v.label + "' src='" + v.service + "/full/,200/0/default.jpg'/><div class='gallery-item-label'>" + v.label + " </div></li>";
+	            html += `<li class='gallery-item' data-manifest=${manifest}' data-canvas='${v.id}' data-service='${v.service}' data-version='${v.type}' alt='image ${i}'><img alt='${alttext}' src='${v.service}/full/,200/0/default.jpg'/><div class='gallery-item-label'>${v.label}</div></li>`;
 	        } else {
-	            html += "<li class='gallery-item' data-manifest='" + v.manifest + "' data-canvas='" + v.canvas + "' data-service='" + v.service + "' data-version='" + v.version + "' alt='image " + i + "'><div class='gallery-item-label'>" + v.label + " </div></li>";
+	            html += "<li class='gallery-item' data-manifest='" + v.manifest + "' data-canvas='" + v.canvas + "' data-service='" + v.service + "' data-version='" + v.version + "' alt='"+alttext+"'><div class='gallery-item-label'>" + v.label + " </div></li>";
 	        }
 	    });	    
 	    html += "</ul>";
@@ -767,7 +768,7 @@
 	    var image = CT.outputs['html'];
 	    //populate stamp
 	    jQuery("#stamp").empty();
-	    jQuery("#stamp").append(`<div><a href='${link}'>${image}</a><br /><figure><a href='${link}'>${label}</a></figure></div>`);
+	    jQuery("#stamp").append(`<a href='${link}' title="${label}">${image}</a>`);
 	//BEN
 	    var containerDiv = jQuery("#stamp");
 	    console.log(containerDiv);
