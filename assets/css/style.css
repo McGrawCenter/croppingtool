@@ -1,6 +1,7 @@
 body {
   color:#333;
   font-family: Helvetica, Arial sans-serif;
+  overflow:hidden;
 } 
  
 /* columns */
