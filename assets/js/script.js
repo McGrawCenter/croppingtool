@@ -508,29 +508,32 @@
 
 	    fetch(url).then(response => {
 			  if (!response.ok) {
+			      console.log("Error in "+url);
 			      throw new Error(response.statusText);
 			  }
 			  return response.json();
 	    })
 	    .then(manifest => {
 	    
-	       var m = new IIIFConverter();
-	       m.load(manifest);
-	       
-	       switch(m.type) {
-	         case "Collection":
-	             //if(m.items.length > 50) { m.items = m.items.slice(0, 49); console.log(m.items); }
-	         
-	             m.items.forEach(function(item) {
-	                 load(item.id);
-	             });
-	         break;
-	         case "Manifest":
-	             CT.manifests[url] = m;
-	             addToGallery(url, m);
-	             
-	         break;	         
-	       }
+		       var m = new IIIFConverter();
+		       m.load(manifest);
+		       
+		       switch(m.type) {
+			 case "Collection":
+			 
+			     m.items.forEach(function(item,index) {
+			          //const myTimeout = setTimeout(load(item.id), 5000);
+			          var t = index*200;
+			          const myTimeout = setTimeout(function(){load(item.id);}, t);
+			         
+			     });
+			 break;
+			 case "Manifest":
+			     CT.manifests[url] = m;
+			     addToGallery(url, m);
+			     
+			 break;	         
+		       }
 
 	    });
 
