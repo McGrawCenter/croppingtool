@@ -199,9 +199,13 @@
 
 	            // update the box    
 	            viewer.updateOverlay(drag.overlayElement, location);
+	            
+	            if(CT.current.manifest.includes("si.edu")) {
+	              if(region[3] < 300) { region[3] = 300; }
+	              console.log("Smithsonian", region[2],region[3]);
+	            }
 
 	            // get the outputs
-	            
 	            CT.outputs = {
 	                "manifest": CT.current.manifest,
 	                "label": CT.current.label,
