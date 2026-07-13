@@ -200,10 +200,6 @@
 	            // update the box    
 	            viewer.updateOverlay(drag.overlayElement, location);
 	            
-	            if(CT.current.manifest.includes("si.edu")) {
-	              if(region[3] < 300) { region[3] = 300; }
-	              console.log("Smithsonian", region[2],region[3]);
-	            }
 
 	            // get the outputs
 	            CT.outputs = {
@@ -218,6 +214,14 @@
 	                "actual": CT.current.service + "/" + region.join(',') + "/" + overlayHeight + ",/" + CT.current.rotation + "/default.jpg",
 	                "html": ""
 	            }
+	            
+	            if(CT.current.manifest.includes("si.edu")) {
+	              if(region[2] < 300 || region[3] < 300) { 
+	                CT.outputs.small = CT.current.service + "/" + region.join(',') + "/full/" + CT.current.rotation + "/default.jpg";
+	              }
+	            } 
+	            
+	            
 	            if (CT.current.version == 3) {
 	                CT.outputs.actual = CT.current.service + "/" + region.join(',') + "/max/" + CT.current.rotation + "/default.jpg";
 	            } else {
