@@ -215,6 +215,12 @@
 	                "html": ""
 	            }
 	            
+	            if(CT.current.manifest.includes("getty")) {
+	                CT.outputs.large = CT.current.service + "/" + region.join(',') + "/full/" + CT.current.rotation + "/default.jpg";
+	                CT.outputs.small = CT.current.service + "/" + region.join(',') + "/full/" + CT.current.rotation + "/default.jpg";
+	                CT.outputs.actual = CT.current.service + "/" + region.join(',') + "/full/" + CT.current.rotation + "/default.jpg";
+	            }   
+	                    
 	            if(CT.current.manifest.includes("si.edu")) {
 	              if(region[2] < 300 || region[3] < 300) { 
 	                CT.outputs.small = CT.current.service + "/" + region.join(',') + "/full/" + CT.current.rotation + "/default.jpg";
